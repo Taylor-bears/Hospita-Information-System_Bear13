@@ -15,3 +15,8 @@ npm install
 # 启动网页
 npm run dev
 ``` 
+
+管理员的账号
+13800138000
+admin
+以及bear的账号

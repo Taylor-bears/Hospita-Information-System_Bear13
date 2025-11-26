@@ -1,14 +1,22 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from database import engine, get_db, Base
-import models, schemas
+import models
+import sys
+import os
+
+# 添加模块路径
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+# 导入各模块的路由
+from login.backend.routes import router as login_router
+from administrator.backend.routes import router as admin_router
 
 # 创建数据库表
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+app = FastAPI(title="医疗管理系统API", version="1.0.0")
 
 # 配置 CORS
 app.add_middleware(
@@ -19,11 +27,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# 注册模块路由
+app.include_router(login_router)
+app.include_router(admin_router)
+
 # 密码哈希工具
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
 
 def get_password_hash(password):
     return pwd_context.hash(password)
@@ -46,56 +55,10 @@ def create_default_admin():
         db.commit()
         print("Default admin created: 13800138000 / admin")
 
-@app.post("/register", response_model=schemas.UserResponse)
-def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    # 检查手机号是否已存在
-    db_user = db.query(models.User).filter(models.User.phone == user.phone).first()
-    if db_user:
-        raise HTTPException(status_code=400, detail="该手机号已被注册")
-
-    # 设置状态
-    # 普通用户直接 active
-    # 医生需要 pending
-    user_status = models.UserStatus.active
-    if user.role == models.UserRole.doctor:
-        user_status = models.UserStatus.pending
-    
-    # 管理员账号不能通过注册接口创建
-    if user.role == models.UserRole.admin:
-        raise HTTPException(status_code=400, detail="无法注册管理员账号")
-
-    hashed_password = get_password_hash(user.password)
-    new_user = models.User(
-        phone=user.phone,
-        password=hashed_password,
-        role=user.role,
-        status=user_status
-    )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
-
-@app.post("/login", response_model=schemas.Token)
-def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
-    db_user = db.query(models.User).filter(models.User.phone == user.phone).first()
-    if not db_user:
-        raise HTTPException(status_code=400, detail="手机号或密码错误")
-    
-    if not verify_password(user.password, db_user.password):
-        raise HTTPException(status_code=400, detail="手机号或密码错误")
-
-    if db_user.status == models.UserStatus.pending:
-        raise HTTPException(status_code=403, detail="账号审核中，请等待管理员审核")
-
-    # 这里简单返回 token (实际项目中应使用 JWT)
-    return {
-        "access_token": "fake-jwt-token", 
-        "token_type": "bearer",
-        "role": db_user.role,
-        "status": db_user.status
-    }
-
 @app.get("/")
 def read_root():
-    return {"message": "Medical System API is running"}
+    return {
+        "message": "Medical System API is running",
+        "version": "1.0.0",
+        "modules": ["login", "administrator"]
+    }
