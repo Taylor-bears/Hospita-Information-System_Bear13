@@ -54,6 +54,19 @@ class DoctorSchedule(Base):
     status = Column(Enum(ScheduleStatus), nullable=False, default=ScheduleStatus.open)
     created_at = Column(TIMESTAMP, server_default=func.now())
 
+# 按天聚合的排班容量（上午/下午）
+class DoctorDaySchedule(Base):
+    __tablename__ = "doctor_day_schedules"
+
+    id = Column(Integer, primary_key=True, index=True)
+    doctor_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    date = Column(Date, nullable=False)
+    am_capacity = Column(Integer, nullable=False, default=0)
+    am_booked_count = Column(Integer, nullable=False, default=0)
+    pm_capacity = Column(Integer, nullable=False, default=0)
+    pm_booked_count = Column(Integer, nullable=False, default=0)
+    created_at = Column(TIMESTAMP, server_default=func.now())
+
 class Appointment(Base):
     __tablename__ = "appointments"
 

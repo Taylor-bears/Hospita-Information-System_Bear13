@@ -245,9 +245,15 @@ const PharmacyDashboard: React.FC = () => {
 
       // 更新药品库存
       for (const medicine of prescription.medicines) {
+        const { data: medData } = await supabase
+          .from('medicines')
+          .select('stock')
+          .eq('id', medicine.id)
+          .single()
+        const newStock = (medData?.stock || 0) - (medicine.quantity || 0)
         await supabase
           .from('medicines')
-          .update({ stock: supabase.sql`stock - ${medicine.quantity}` })
+          .update({ stock: newStock })
           .eq('id', medicine.id)
       }
 

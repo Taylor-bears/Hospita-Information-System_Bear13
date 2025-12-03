@@ -16,7 +16,7 @@ interface LoginForm {
 
 export default function LoginPage() {
   const [form] = Form.useForm<LoginForm>()
-  const { login, loading } = useAuthStore()
+  const { login, loading, user } = useAuthStore()
   const navigate = useNavigate()
 
   const handleSubmit = async (values: LoginForm) => {
@@ -24,8 +24,9 @@ export default function LoginPage() {
       await login(values.phone, values.password, values.role)
       message.success('登录成功')
       
-      // 根据角色跳转到对应页面
-      switch (values.role) {
+      // 根据实际登录角色跳转到对应页面
+      const role = user?.role || values.role
+      switch (role) {
         case 'patient':
           navigate('/patient')
           break

@@ -89,18 +89,18 @@ const ReportsAndAnalytics: React.FC = () => {
       if (error) throw error
 
       // 按药品统计销售数据
-      const drugStats = data?.reduce((acc, item) => {
-        const drugId = item.drug_id
-        if (!acc[drugId]) {
-          acc[drugId] = {
-            drugId,
-            drugName: item.drug?.name,
-            category: item.drug?.category,
-            specification: item.drug?.specification,
-            totalQuantity: 0,
-            totalSales: 0
+        const drugStats = data?.reduce((acc, item: any) => {
+          const drugId = item.drug_id
+          if (!acc[drugId]) {
+            acc[drugId] = {
+              drugId,
+              drugName: (item as any).drug?.name,
+              category: (item as any).drug?.category,
+              specification: (item as any).drug?.specification,
+              totalQuantity: 0,
+              totalSales: 0
+            }
           }
-        }
         acc[drugId].totalQuantity += item.quantity
         acc[drugId].totalSales += item.quantity * item.unit_price
         return acc

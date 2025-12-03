@@ -10,6 +10,7 @@ import {
 } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
+import api from '../../lib/api'
 
 const { Meta } = Card
 
@@ -17,40 +18,37 @@ export default function PatientDashboard() {
   const navigate = useNavigate()
   const { user } = useAuthStore()
 
-  // 模拟数据
-  const upcomingAppointments = [
-    {
-      id: '1',
-      doctor_name: '张医生',
-      department: '内科',
-      appointment_time: '2024-12-03 14:00',
-      status: 'scheduled'
-    },
-    {
-      id: '2', 
-      doctor_name: '李医生',
-      department: '外科',
-      appointment_time: '2024-12-05 10:00',
-      status: 'scheduled'
+  const [upcomingAppointments, setUpcomingAppointments] = React.useState<any[]>([])
+  const [recentPrescriptions, setRecentPrescriptions] = React.useState<any[]>([])
+  React.useEffect(() => {
+    const run = async () => {
+      try {
+        const apRes = await api.get('/appointments/my', { params: { patient_id: user?.id } })
+        const aps = Array.isArray(apRes.data) ? apRes.data.slice(0, 5) : []
+        const mapped = aps.map((a: any) => ({
+          id: a.id,
+          doctor_name: '医生',
+          department: '内科',
+          appointment_time: a.created_at?.replace('T', ' ').slice(0, 16),
+          status: a.status,
+        }))
+        setUpcomingAppointments(mapped)
+      } catch {}
+      try {
+        const orRes = await api.get('/api/orders/my', { params: { patient_id: user?.id } })
+        const list = Array.isArray(orRes.data) ? orRes.data.slice(0, 5) : []
+        const mapped = list.map((o: any) => ({
+          id: o.id,
+          doctor_name: '医生',
+          prescribed_date: o.created_at?.slice(0, 10),
+          status: o.payment_status === 'paid' ? 'paid' : 'pending',
+          total_amount: o.total_amount,
+        }))
+        setRecentPrescriptions(mapped)
+      } catch {}
     }
-  ]
-
-  const recentPrescriptions = [
-    {
-      id: '1',
-      doctor_name: '张医生',
-      prescribed_date: '2024-12-01',
-      status: 'paid',
-      total_amount: 156.80
-    },
-    {
-      id: '2',
-      doctor_name: '王医生', 
-      prescribed_date: '2024-11-28',
-      status: 'dispensed',
-      total_amount: 89.50
-    }
-  ]
+    run()
+  }, [user?.id])
 
   const quickActions = [
     {

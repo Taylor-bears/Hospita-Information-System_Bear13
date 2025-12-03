@@ -14,9 +14,7 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
-  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/unauthorized" replace />
-  }
+  // MVP：移除角色权限限制，任何已登录用户均可访问
 
   return <>{children}</>
 }

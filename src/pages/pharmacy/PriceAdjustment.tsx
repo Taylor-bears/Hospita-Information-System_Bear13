@@ -3,7 +3,7 @@ import { Card, Table, Button, InputNumber, Form, Input, Modal, message, Tag, Spa
 import { EditOutlined, HistoryOutlined, SearchOutlined } from '@ant-design/icons'
 import api from '../../lib/api'
 import { useAuthStore } from '../../stores/authStore'
-import moment from 'moment'
+import dayjs from 'dayjs'
 
 const { RangePicker } = DatePicker
 const { Option } = Select
@@ -23,7 +23,8 @@ interface Medicine {
 
 export default function PriceAdjustment() {
   const [medicines, setMedicines] = useState<Medicine[]>([])
-  const [priceLogs, setPriceLogs] = useState<PriceLog[]>([])
+  const [priceLogs, setPriceLogs] = useState<any[]>([])
+  const [loading, setLoading] = useState(false)
   const [logLoading, setLogLoading] = useState(false)
   const [editingRecord, setEditingRecord] = useState<Medicine | null>(null)
   const [adjustModalVisible, setAdjustModalVisible] = useState(false)
@@ -109,7 +110,7 @@ export default function PriceAdjustment() {
     setAdjustModalVisible(true)
   }
 
-  const showLogModal = async () => {
+  const showLogModal = async (_id?: string) => {
     setLogModalVisible(true)
   }
 
@@ -190,9 +191,9 @@ export default function PriceAdjustment() {
       dataIndex: 'created_at',
       key: 'created_at',
       width: 180,
-      render: (date: string) => moment(date).format('YYYY-MM-DD HH:mm'),
+      render: (date: string) => dayjs(date).format('YYYY-MM-DD HH:mm'),
       sorter: (a: Medicine, b: Medicine) => 
-        moment(a.created_at).unix() - moment(b.created_at).unix()
+        dayjs(a.created_at).unix() - dayjs(b.created_at).unix()
     },
     {
       title: '操作',

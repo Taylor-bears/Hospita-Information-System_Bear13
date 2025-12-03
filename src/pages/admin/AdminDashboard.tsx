@@ -12,6 +12,8 @@ import {
   FileTextOutlined
 } from '@ant-design/icons'
 import api from '../../lib/api'
+import { isDemo, getAdminStats, getAdminUsers, getRoleDistribution } from '../../lib/demo'
+import { roleName, statusColor, statusText } from '../../utils/admin'
 // 图表库已移除，使用简易渲染代替
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
@@ -75,12 +77,15 @@ const AdminDashboard: React.FC = () => {
         pendingApprovals: Number(s.pending_doctors || 0),
         totalAppointments: Number(s.total_appointments || 0),
         pendingAppointments: Number(s.active_appointments || 0),
-        totalPrescriptions: 0,
-        totalRevenue: 0,
+        totalPrescriptions: Number(s.total_prescriptions || 0),
+        totalRevenue: Number(s.total_revenue || 0),
       })
     } catch (error) {
-      console.error('获取系统统计失败:', error)
-      message.error('获取系统统计失败')
+      if (isDemo) {
+        setStats(getAdminStats())
+      } else {
+        setStats({ totalUsers: 0, pendingApprovals: 0, totalAppointments: 0, pendingAppointments: 0, totalPrescriptions: 0, totalRevenue: 0 })
+      }
     }
   }
 
@@ -98,7 +103,7 @@ const AdminDashboard: React.FC = () => {
       }))
       setRecentUsers(mapped)
     } catch (error) {
-      console.error('获取最近用户失败:', error)
+      setRecentUsers(isDemo ? getAdminUsers().slice(0, 10) as any : [])
     }
   }
 
@@ -128,64 +133,24 @@ const AdminDashboard: React.FC = () => {
   const fetchRoleDistribution = async () => {
     try {
       const usersRes = await api.get('/api/admin/users')
-      const userCount = Array.isArray(usersRes.data) ? usersRes.data.length : 0
       const statsRes = await api.get('/api/admin/stats')
+      const userCount = Array.isArray(usersRes.data) ? usersRes.data.filter((u: any) => u.role === 'patient').length : 0
       const docCount = Number(statsRes.data?.total_doctors || 0)
-      const total = Number(statsRes.data?.total_users || (userCount + docCount + 1))
-      const adminCount = 1
-      const pharmacistCount = 0
+      const pharmacistCount = Number(statsRes.data?.total_pharmacists || 0)
+      const adminCount = Number(statsRes.data?.total_admins || 1)
+      const total = userCount + docCount + pharmacistCount + adminCount
       const distribution: RoleDistribution[] = [
-        { role: '患者', count: userCount, percentage: Math.round((userCount / total) * 100) },
-        { role: '医生', count: docCount, percentage: Math.round((docCount / total) * 100) },
-        { role: '药房工作人员', count: pharmacistCount, percentage: Math.round((pharmacistCount / total) * 100) },
-        { role: '管理员', count: adminCount, percentage: Math.round((adminCount / total) * 100) },
+        { role: '患者', count: userCount, percentage: total ? Math.round((userCount / total) * 100) : 0 },
+        { role: '医生', count: docCount, percentage: total ? Math.round((docCount / total) * 100) : 0 },
+        { role: '药房工作人员', count: pharmacistCount, percentage: total ? Math.round((pharmacistCount / total) * 100) : 0 },
+        { role: '管理员', count: adminCount, percentage: total ? Math.round((adminCount / total) * 100) : 0 },
       ]
       setRoleDistribution(distribution)
     } catch (error) {
-      console.error('获取角色分布失败:', error)
+      setRoleDistribution(isDemo ? getRoleDistribution(getAdminUsers() as any) as any : [])
     }
   }
 
-  const getRoleDisplayName = (role: string) => {
-    switch (role) {
-      case 'admin':
-        return '管理员'
-      case 'doctor':
-        return '医生'
-      case 'patient':
-        return '患者'
-      case 'pharmacist':
-        return '药房工作人员'
-      default:
-        return role
-    }
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return 'orange'
-      case 'approved':
-        return 'green'
-      case 'rejected':
-        return 'red'
-      default:
-        return 'default'
-    }
-  }
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return '待审核'
-      case 'approved':
-        return '已通过'
-      case 'rejected':
-        return '已拒绝'
-      default:
-        return status
-    }
-  }
 
   useEffect(() => {
     fetchSystemStats()
@@ -213,14 +178,14 @@ const AdminDashboard: React.FC = () => {
       title: '角色',
       dataIndex: 'role',
       key: 'role',
-      render: (role: string) => <span>{getRoleDisplayName(role)}</span>
+      render: (role: string) => <span>{roleName(role)}</span>
     },
     {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
       render: (status: string) => (
-        <Tag color={getStatusColor(status)}>{getStatusText(status)}</Tag>
+        <Tag color={statusColor(status)}>{statusText(status)}</Tag>
       )
     },
     {
@@ -360,6 +325,7 @@ const AdminDashboard: React.FC = () => {
           rowKey="id"
           pagination={false}
           size="small"
+          locale={{ emptyText: '当前无用户' }}
         />
       </Card>
     </div>

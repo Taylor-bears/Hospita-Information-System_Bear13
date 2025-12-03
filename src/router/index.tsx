@@ -4,6 +4,7 @@ import { lazy } from 'react'
 // 认证页面
 const LoginPage = lazy(() => import('../pages/LoginPage'))
 const RegisterPage = lazy(() => import('../pages/RegisterPage'))
+const UnauthorizedPage = lazy(() => import('../pages/UnauthorizedPage'))
 
 // 患者页面
 const PatientDashboard = lazy(() => import('../pages/patient/PatientDashboard'))
@@ -182,6 +183,7 @@ export default function AppRouter() {
       
       {/* 默认路由 */}
       <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="/unauthorized" element={<UnauthorizedPage />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   )

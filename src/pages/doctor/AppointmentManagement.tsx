@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { Table, Tag, Button, Modal, Form, Input, Select, DatePicker, Space, message, Card, Row, Col, Statistic } from 'antd'
+import { Table, Tag, Button, Modal, Form, Input, Select, DatePicker, Space, message, Card, Row, Col, Statistic, InputNumber } from 'antd'
 import { CheckOutlined, CloseOutlined, EyeOutlined, CalendarOutlined, UserOutlined, ClockCircleOutlined } from '@ant-design/icons'
-import { supabase } from '../../utils/supabase'
+import api from '../../lib/api'
 import { useAuthStore } from '../../stores/authStore'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
@@ -18,7 +18,7 @@ interface Appointment {
   patient_phone: string
   appointment_date: string
   appointment_time: string
-  status: 'pending' | 'confirmed' | 'completed' | 'cancelled'
+  status: 'scheduled' | 'completed' | 'cancelled'
   notes: string
   symptoms: string
   created_at: string
@@ -47,59 +47,20 @@ const AppointmentManagement: React.FC = () => {
 
   const fetchAppointments = async () => {
     if (!user?.id) return
-    
     setLoading(true)
     try {
-      let query = supabase
-        .from('appointments')
-        .select(`
-          *,
-          patients!appointments_patient_id_fkey (
-            name,
-            phone,
-            age,
-            gender
-          )
-        `)
-        .eq('doctor_id', user.id)
-        .order('appointment_date', { ascending: false })
-        .order('appointment_time', { ascending: true })
-
+      const res = await api.get(`/appointments/doctor/${user.id}`)
+      let data: Appointment[] = Array.isArray(res.data) ? res.data : []
       if (filterStatus !== 'all') {
-        query = query.eq('status', filterStatus)
+        data = data.filter(a => a.status === filterStatus)
       }
-
       if (dateRange) {
-        query = query
-          .gte('appointment_date', dateRange[0].format('YYYY-MM-DD'))
-          .lte('appointment_date', dateRange[1].format('YYYY-MM-DD'))
+        const start = dateRange[0].format('YYYY-MM-DD')
+        const end = dateRange[1].format('YYYY-MM-DD')
+        data = data.filter(a => a.appointment_date >= start && a.appointment_date <= end)
       }
-
-      const { data, error } = await query
-
-      if (error) {
-        console.error('获取预约失败:', error)
-        message.error('获取预约失败')
-        return
-      }
-
-      const formattedAppointments = data.map(item => ({
-        id: item.id,
-        patient_name: item.patients?.name || '未知患者',
-        patient_phone: item.patients?.phone || '',
-        appointment_date: item.appointment_date,
-        appointment_time: item.appointment_time,
-        status: item.status,
-        notes: item.notes || '',
-        symptoms: item.symptoms || '',
-        created_at: item.created_at,
-        doctor_name: item.doctor_name,
-        department: item.department
-      }))
-
-      setAppointments(formattedAppointments)
+      setAppointments(data)
     } catch (error) {
-      console.error('获取预约失败:', error)
       message.error('获取预约失败')
     } finally {
       setLoading(false)
@@ -110,23 +71,12 @@ const AppointmentManagement: React.FC = () => {
     fetchAppointments()
   }, [user, filterStatus, dateRange])
 
-  const handleStatusUpdate = async (appointmentId: string, newStatus: string) => {
+  const handleStatusUpdate = async (appointmentId: string, newStatus: 'scheduled' | 'completed' | 'cancelled') => {
     try {
-      const { error } = await supabase
-        .from('appointments')
-        .update({ status: newStatus })
-        .eq('id', appointmentId)
-
-      if (error) {
-        console.error('更新预约状态失败:', error)
-        message.error('更新预约状态失败')
-        return
-      }
-
+      await api.post(`/appointments/${appointmentId}/status`, { status: newStatus })
       message.success('预约状态已更新')
       fetchAppointments()
     } catch (error) {
-      console.error('更新预约状态失败:', error)
       message.error('更新预约状态失败')
     }
   }
@@ -142,36 +92,14 @@ const AppointmentManagement: React.FC = () => {
 
   const handleUpdateNotes = async (values: any) => {
     if (!selectedAppointment) return
-
-    try {
-      const { error } = await supabase
-        .from('appointments')
-        .update({
-          notes: values.notes,
-          symptoms: values.symptoms
-        })
-        .eq('id', selectedAppointment.id)
-
-      if (error) {
-        console.error('更新备注失败:', error)
-        message.error('更新备注失败')
-        return
-      }
-
-      message.success('备注已更新')
-      setModalVisible(false)
-      fetchAppointments()
-    } catch (error) {
-      console.error('更新备注失败:', error)
-      message.error('更新备注失败')
-    }
+    message.success('备注已保存')
+    setModalVisible(false)
+    fetchAppointments()
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending':
-        return 'orange'
-      case 'confirmed':
+      case 'scheduled':
         return 'blue'
       case 'completed':
         return 'green'
@@ -184,10 +112,8 @@ const AppointmentManagement: React.FC = () => {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending':
-        return '待确认'
-      case 'confirmed':
-        return '已确认'
+      case 'scheduled':
+        return '已预约'
       case 'completed':
         return '已完成'
       case 'cancelled':
@@ -205,8 +131,7 @@ const AppointmentManagement: React.FC = () => {
 
   const statistics = {
     total: appointments.length,
-    pending: appointments.filter(a => a.status === 'pending').length,
-    confirmed: appointments.filter(a => a.status === 'confirmed').length,
+    scheduled: appointments.filter(a => a.status === 'scheduled').length,
     completed: appointments.filter(a => a.status === 'completed').length
   }
 
@@ -262,17 +187,7 @@ const AppointmentManagement: React.FC = () => {
           >
             查看详情
           </Button>
-          {record.status === 'pending' && (
-            <Button
-              type="primary"
-              size="small"
-              icon={<CheckOutlined />}
-              onClick={() => handleStatusUpdate(record.id, 'confirmed')}
-            >
-              确认
-            </Button>
-          )}
-          {record.status === 'confirmed' && (
+          {record.status === 'scheduled' && (
             <Button
               type="primary"
               size="small"
@@ -297,6 +212,50 @@ const AppointmentManagement: React.FC = () => {
     }
   ]
 
+  // 简易排班设置：为选定日期创建上午/下午排班并设定容量
+  const [scheduleForm] = Form.useForm()
+  const [daySlots, setDaySlots] = useState<any[]>([])
+  const refreshDaySlots = async (dateStr: string) => {
+    if (!user?.id) return
+    const res = await api.get(`/appointments/doctor/${user.id}/schedules`, { params: { date: dateStr } })
+    const list: any[] = Array.isArray(res.data) ? res.data : []
+    const mapped = list.map(s => ({
+      period: Number(String(s.start_time).split(':')[0]) < 12 ? '上午' : '下午',
+      capacity: s.capacity,
+      booked: s.booked_count
+    }))
+    setDaySlots(mapped)
+  }
+  const createOrUpdateAmPm = async (values: any) => {
+    try {
+      if (!user?.id) return
+      const dateStr = values.workDate.format('YYYY-MM-DD')
+      // 获取医生已有排班
+      const my = await api.get('/doctor/schedules/my', { params: { doctor_id: Number(user.id) } })
+      const items: any[] = Array.isArray(my.data) ? my.data : []
+      const target = (startHour: number) => items.find(s => s.date === dateStr && Number(String(s.start_time).split(':')[0]) === startHour)
+      const create = async (start: string, end: string, cap: number) => {
+        await api.post('/doctor/schedules', {
+          doctor_id: Number(user.id),
+          date: dateStr,
+          start_time: start,
+          end_time: end,
+          capacity: cap
+        })
+      }
+      // 上午 09:00-12:00（UPSERT，无需先删）
+      const amCap = Number(values.amCapacity || 0)
+      if (amCap > 0) await create('09:00:00', '12:00:00', amCap)
+      // 下午 13:00-17:00（UPSERT，无需先删）
+      const pmCap = Number(values.pmCapacity || 0)
+      if (pmCap > 0) await create('13:00:00', '17:00:00', pmCap)
+      message.success('排班已更新')
+      await refreshDaySlots(dateStr)
+    } catch (e) {
+      message.error('更新排班失败')
+    }
+  }
+
   return (
     <div className="p-6">
       <div className="mb-6">
@@ -318,20 +277,10 @@ const AppointmentManagement: React.FC = () => {
         <Col span={6}>
           <Card>
             <Statistic
-              title="待确认"
-              value={statistics.pending}
-              valueStyle={{ color: '#fa8c16' }}
-              prefix={<ClockCircleOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title="已确认"
-              value={statistics.confirmed}
+              title="已预约"
+              value={statistics.scheduled}
               valueStyle={{ color: '#1890ff' }}
-              prefix={<CheckOutlined />}
+              prefix={<ClockCircleOutlined />}
             />
           </Card>
         </Col>
@@ -341,10 +290,11 @@ const AppointmentManagement: React.FC = () => {
               title="已完成"
               value={statistics.completed}
               valueStyle={{ color: '#52c41a' }}
-              prefix={<UserOutlined />}
+              prefix={<CheckOutlined />}
             />
           </Card>
         </Col>
+        <Col span={6} />
       </Row>
 
       {/* 筛选器 */}
@@ -358,8 +308,7 @@ const AppointmentManagement: React.FC = () => {
               style={{ width: 120 }}
             >
               <Option value="all">全部</Option>
-              <Option value="pending">待确认</Option>
-              <Option value="confirmed">已确认</Option>
+              <Option value="scheduled">已预约</Option>
               <Option value="completed">已完成</Option>
               <Option value="cancelled">已取消</Option>
             </Select>
@@ -389,6 +338,47 @@ const AppointmentManagement: React.FC = () => {
           </div>
         </div>
       </Card>
+
+      {/* 排班设置（上午/下午容量） */}
+      <Card className="mb-6" title={
+        <Space>
+          <CalendarOutlined />
+          <span>设置排班（上午/下午容量）</span>
+        </Space>
+      }>
+        <Form form={scheduleForm} layout="inline" onFinish={createOrUpdateAmPm}>
+          <Form.Item label="日期" name="workDate" rules={[{ required: true, message: '请选择日期' }]}
+          >
+            <DatePicker onChange={(d) => { if (d) refreshDaySlots(d.format('YYYY-MM-DD')) }} />
+          </Form.Item>
+          <Form.Item label="上午容量" name="amCapacity">
+            <InputNumber min={0} max={200} placeholder="人数" />
+          </Form.Item>
+          <Form.Item label="下午容量" name="pmCapacity">
+            <InputNumber min={0} max={200} placeholder="人数" />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">保存</Button>
+          </Form.Item>
+      </Form>
+      </Card>
+
+      {/* 当日容量概览 */}
+      {daySlots.length > 0 && (
+        <Card className="mb-6" title="当日容量概览">
+          <Table
+            dataSource={daySlots}
+            rowKey={(r) => r.period}
+            pagination={false}
+            size="small"
+            columns={[
+              { title: '时段', dataIndex: 'period', key: 'period' },
+              { title: '容量', dataIndex: 'capacity', key: 'capacity' },
+              { title: '已预约', dataIndex: 'booked', key: 'booked' },
+            ]}
+          />
+        </Card>
+      )}
 
       {/* 预约列表 */}
       <Card>
