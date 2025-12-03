@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from passlib.context import CryptContext
-from database import engine, get_db, Base
-import models
+from .database import engine, get_db, Base
+from . import models
 import sys
 import os
 
@@ -12,6 +12,13 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 # 导入各模块的路由
 from login.backend.routes import router as login_router
 from administrator.backend.routes import router as admin_router
+from appointments.backend.routes import router as appointments_router
+from ai.routes import router as ai_router
+from api.auth import router as api_auth_router
+from api.admin import router as api_admin_router
+from doctor.api import router as api_doctor_router
+from api.ai_consult import router as api_ai_consult_router
+from api.profile import router as api_profile_router
 
 # 创建数据库表
 models.Base.metadata.create_all(bind=engine)
@@ -30,6 +37,13 @@ app.add_middleware(
 # 注册模块路由
 app.include_router(login_router)
 app.include_router(admin_router)
+app.include_router(appointments_router)
+app.include_router(ai_router)
+app.include_router(api_auth_router)
+app.include_router(api_admin_router)
+app.include_router(api_doctor_router)
+app.include_router(api_ai_consult_router)
+app.include_router(api_profile_router)
 
 # 密码哈希工具
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -60,5 +74,5 @@ def read_root():
     return {
         "message": "Medical System API is running",
         "version": "1.0.0",
-        "modules": ["login", "administrator"]
+        "modules": ["login", "administrator", "appointments", "ai", "api.auth", "api.admin", "api.doctor", "api.ai_consult", "api.profile"]
     }
