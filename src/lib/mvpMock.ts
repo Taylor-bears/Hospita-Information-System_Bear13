@@ -1,4 +1,4 @@
-import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import type { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import accountManager from './AccountManager'
 
 type Role = 'admin' | 'doctor' | 'patient' | 'pharmacist'
@@ -168,11 +168,11 @@ function match(path: string, pattern: RegExp) {
   return m || null
 }
 
-function ok<T>(config: AxiosRequestConfig, data: T, status = 200): AxiosResponse<T> {
+function ok<T>(config: InternalAxiosRequestConfig, data: T, status = 200): AxiosResponse<T> {
   return { data, status, statusText: 'OK', headers: {}, config }
 }
 
-function err(config: AxiosRequestConfig, status: number, data: any): Promise<never> {
+function err(config: InternalAxiosRequestConfig, status: number, data: any): Promise<never> {
   const error: any = new Error(data?.message || 'Request failed')
   error.response = { data, status, statusText: 'ERR', headers: {}, config }
   throw error
@@ -181,10 +181,10 @@ function err(config: AxiosRequestConfig, status: number, data: any): Promise<nev
 export function initMvpMock(instance: AxiosInstance) {
   if (!ENABLE_MVP) return
   const oldAdapter = instance.defaults.adapter!
-  instance.defaults.adapter = async (config: AxiosRequestConfig) => {
+  instance.defaults.adapter = async (config: InternalAxiosRequestConfig) => {
     const url = String(config.url || '')
     await accountManager.init()
-    const users = accountManager.getAll().map(u => ({ id: u.id, phone: u.phone, name: u.name, role: u.role, status: u.status, password: '', rejection_reason: '', created_at: u.created_at, updated_at: u.updated_at }))
+    const users: MvpUser[] = accountManager.getAll().map(u => ({ id: u.id, phone: u.phone, name: u.name, role: u.role as Role, status: (u.status as any) as Status, password: '', rejection_reason: '', created_at: u.created_at, updated_at: u.updated_at }))
     const drugs = loadDrugs()
     let orders = loadOrders()
     let schedules = loadSchedules()
@@ -194,21 +194,21 @@ export function initMvpMock(instance: AxiosInstance) {
     if (url === '/api/auth/register/patient/' && config.method === 'post') {
       const body: any = config.data || {}
       const id = String(Date.now())
-      users.push({ id, phone: body.phone, name: body.name || body.phone, role: 'patient', status: 'active', password: body.password, created_at: now(), updated_at: now() })
+      users.push({ id, phone: body.phone, name: body.name || body.phone, role: 'patient', status: 'active', password: body.password, rejection_reason: '', created_at: now(), updated_at: now() })
       saveUsers(users)
       return ok(config, { status: 'active' })
     }
     if (url === '/api/auth/register/doctor/' && config.method === 'post') {
       const body: any = config.data || {}
       const id = String(Date.now())
-      users.push({ id, phone: body.phone, name: body.name || body.phone, role: 'doctor', status: 'pending', password: body.password, created_at: now(), updated_at: now() })
+      users.push({ id, phone: body.phone, name: body.name || body.phone, role: 'doctor', status: 'pending', password: body.password, rejection_reason: '', created_at: now(), updated_at: now() })
       saveUsers(users)
       return ok(config, { status: 'pending' })
     }
     if (url === '/api/auth/register/pharmacist/' && config.method === 'post') {
       const body: any = config.data || {}
       const id = String(Date.now())
-      users.push({ id, phone: body.phone, name: body.name || body.phone, role: 'pharmacist', status: 'pending', password: body.password, created_at: now(), updated_at: now() })
+      users.push({ id, phone: body.phone, name: body.name || body.phone, role: 'pharmacist', status: 'pending', password: body.password, rejection_reason: '', created_at: now(), updated_at: now() })
       saveUsers(users)
       return ok(config, { status: 'pending' })
     }
@@ -249,6 +249,7 @@ export function initMvpMock(instance: AxiosInstance) {
           role,
           status: 'active',
           password: body.password,
+          rejection_reason: '',
           created_at: now(),
           updated_at: now(),
         }
@@ -273,8 +274,8 @@ export function initMvpMock(instance: AxiosInstance) {
       const params = config.params || {}
       const page = Number(params.page || 1)
       const pageSize = Number(params.pageSize || 20)
-      const status = params.status as Status | undefined
-      const role = params.role as Role | undefined
+      const status = params.status as (Status | 'all' | undefined)
+      const role = params.role as (Role | 'all' | undefined)
       const all = users.filter(u => (u.role === 'doctor' || u.role === 'pharmacist'))
         .filter(u => (status && status !== 'all' ? (u.status === status || (u.status === 'active' && status === 'approved')) : true))
         .filter(u => (role && role !== 'all' ? u.role === role : true))
@@ -539,6 +540,18 @@ export function initMvpMock(instance: AxiosInstance) {
       return ok(config, { ok: true })
     }
 
-    return oldAdapter(config)
+    if (typeof oldAdapter === 'function') {
+      return (oldAdapter as any)(config)
+    } else {
+      const method = String(config.method || 'get').toUpperCase()
+      const base = config.baseURL || (typeof window !== 'undefined' ? window.location.origin : '')
+      const fullUrl = new URL(String(config.url || ''), base).toString()
+      const headers = (config.headers as any) || {}
+      const body = ['GET', 'HEAD'].includes(method) ? undefined : (typeof config.data === 'string' ? config.data : JSON.stringify(config.data))
+      const res = await fetch(fullUrl, { method, headers, body } as any)
+      let payload: any = null
+      try { payload = await res.json() } catch { payload = null }
+      return { data: payload, status: res.status, statusText: res.statusText, headers: {}, config }
+    }
   }
 }
