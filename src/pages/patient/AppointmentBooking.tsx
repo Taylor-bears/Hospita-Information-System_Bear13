@@ -9,7 +9,6 @@ import {
   Tag, 
   Space, 
   message,
-  Modal,
   Input,
   Descriptions,
   Avatar,
@@ -17,6 +16,7 @@ import {
   Col,
   Statistic
 } from 'antd'
+import { Modal } from 'antd'
 import { 
   CalendarOutlined, 
   UserOutlined, 
@@ -73,10 +73,11 @@ export default function AppointmentBooking() {
   const [schedules, setSchedules] = useState<Schedule[]>([])
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null)
   const [selectedDate, setSelectedDate] = useState<dayjs.Dayjs | null>(null)
-  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([])
+  // 简化为“上/下午”选择
   const [myAppointments, setMyAppointments] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [submitLoading, setSubmitLoading] = useState(false)
+  // 最简版本去除改期功能，避免后端无对应接口导致失败
 
   // 获取医生列表
   const fetchDoctors = async () => {
@@ -87,7 +88,6 @@ export default function AppointmentBooking() {
       setDoctors(list)
     } catch (error) {
       message.error('获取医生列表失败')
-      console.error('Error fetching doctors:', error)
     } finally {
       setLoading(false)
     }
@@ -100,12 +100,12 @@ export default function AppointmentBooking() {
       const res = await api.get(`/appointments/doctor/${doctorId}/schedules`, { params: { date: dateStr } })
       const data: Schedule[] = Array.isArray(res.data) ? res.data : []
       setSchedules(data)
-      generateTimeSlots(data)
     } catch (error) {
       message.error('获取排班信息失败')
-      console.error('Error fetching schedules:', error)
     }
   }
+
+  // 去除改期槽位生成
 
   // 获取我的预约
   const fetchMyAppointments = async () => {
@@ -114,19 +114,13 @@ export default function AppointmentBooking() {
       setMyAppointments(Array.isArray(res.data) ? res.data : [])
     } catch (error) {
       message.error('获取预约记录失败')
-      console.error('Error fetching appointments:', error)
     }
   }
 
-  // 生成可用时间段
-  const generateTimeSlots = (schedules: Schedule[]) => {
-    const slots: string[] = []
-    schedules.forEach(s => {
-      if (s.booked_count < s.capacity) {
-        slots.push(`${s.id}|${s.start_time}-${s.end_time}`)
-      }
-    })
-    setAvailableTimeSlots(slots)
+  // 计算上/下午标签
+  const getPeriodLabel = (s: Schedule) => {
+    const h = Number(String(s.start_time).split(':')[0])
+    return h < 12 ? '上午' : '下午'
   }
 
   // 处理医生选择
@@ -134,14 +128,13 @@ export default function AppointmentBooking() {
     const doctor = doctors.find(d => d.id === doctorId)
     setSelectedDoctor(doctor || null)
     setSelectedDate(null)
-    setAvailableTimeSlots([])
     form.setFieldsValue({ appointmentDate: null, appointmentTime: null })
   }
 
   // 处理日期选择
   const handleDateChange = (date: dayjs.Dayjs | null) => {
     setSelectedDate(date)
-    setAvailableTimeSlots([])
+    setSchedules([])
     form.setFieldsValue({ appointmentTime: null })
     
     if (date && selectedDoctor) {
@@ -161,15 +154,13 @@ export default function AppointmentBooking() {
         schedule_id: scheduleId
       })
       message.success('预约成功！')
-      form.resetFields()
-      setSelectedDoctor(null)
-      setSelectedDate(null)
-      setAvailableTimeSlots([])
-      fetchMyAppointments()
-      
+      await fetchMyAppointments()
+      // 预约成功后刷新该日期的排班容量与已预约数，便于患者看到扣减效果
+      if (selectedDoctor && selectedDate) {
+        await fetchSchedules(selectedDoctor.id, selectedDate)
+      }
     } catch (error) {
       message.error('预约失败')
-      console.error('Error creating appointment:', error)
     } finally {
       setSubmitLoading(false)
     }
@@ -191,6 +182,12 @@ export default function AppointmentBooking() {
       }
     })
   }
+
+  // 去除改期入口
+
+  // 去除改期日期处理
+
+  // 去除改期提交
 
   useEffect(() => {
     fetchDoctors()
@@ -256,17 +253,21 @@ export default function AppointmentBooking() {
       dataIndex: 'status',
       key: 'status',
       render: (status: string) => {
-        const colors = {
+        const colors: Record<string, string> = {
           scheduled: 'blue',
+          confirmed: 'blue',
           completed: 'green',
           cancelled: 'red'
         }
-        const texts = {
+        const texts: Record<string, string> = {
           scheduled: '已预约',
+          confirmed: '已预约',
           completed: '已完成',
           cancelled: '已取消'
         }
-        return <Tag color={colors[status as keyof typeof colors]}>{texts[status as keyof typeof texts]}</Tag>
+        const c = colors[status] || 'blue'
+        const t = texts[status] || status
+        return <Tag color={c}>{t}</Tag>
       }
     },
     {
@@ -274,7 +275,7 @@ export default function AppointmentBooking() {
       key: 'action',
       render: (_: any, record: any) => (
         <Space>
-          {record.status === 'scheduled' && (
+          {record.status === 'scheduled' || record.status === 'confirmed' ? (
             <Button 
               type="link" 
               danger
@@ -282,14 +283,16 @@ export default function AppointmentBooking() {
             >
               取消
             </Button>
-          )}
+          ) : null}
         </Space>
       )
     }
   ]
 
   const disabledDate = (current: dayjs.Dayjs) => {
-    return current && current < dayjs().startOf('day')
+    const today = dayjs().startOf('day')
+    const max = dayjs().add(30, 'day').endOf('day')
+    return !!current && (current < today || current > max)
   }
 
   return (
@@ -360,14 +363,18 @@ export default function AppointmentBooking() {
                 rules={[{ required: true, message: '请选择预约时间' }]}
               >
                 <Select
-                  placeholder="请选择预约时段"
-                  disabled={availableTimeSlots.length === 0}
+                  placeholder="请选择上/下午"
+                  disabled={!selectedDoctor || !selectedDate}
+                  allowClear
                 >
-                  {availableTimeSlots.map(item => {
-                    const [sid, label] = item.split('|')
+                  {schedules.map(s => {
+                    const label = getPeriodLabel(s)
+                    const full = s.booked_count >= s.capacity
+                    const text = full ? `${label}（已预约满）` : label
+                    const value = `${s.id}|${label}`
                     return (
-                      <Option key={item} value={item}>
-                        {label}
+                      <Option key={value} value={value} disabled={full}>
+                        {text}
                       </Option>
                     )
                   })}
@@ -436,6 +443,8 @@ export default function AppointmentBooking() {
           </Card>
         </Col>
       </Row>
+
+      
     </div>
   )
 }

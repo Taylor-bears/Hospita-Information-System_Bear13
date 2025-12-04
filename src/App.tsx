@@ -1,5 +1,5 @@
-import React, { Suspense } from 'react'
-import { BrowserRouter } from 'react-router-dom'
+import React, { Suspense, useEffect } from 'react'
+import { HashRouter } from 'react-router-dom'
 import { ConfigProvider } from 'antd'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import zhCN from 'antd/locale/zh_CN'
@@ -7,6 +7,7 @@ import 'antd/dist/reset.css'
 import './App.css'
 
 import AppRouter from './router'
+import ErrorBoundary from './components/ErrorBoundary'
 import { useAuthStore } from './stores/authStore'
 
 const queryClient = new QueryClient({
@@ -19,10 +20,24 @@ const queryClient = new QueryClient({
 })
 
 function App() {
+  useEffect(() => {
+    const path = window.location.pathname.toLowerCase()
+    const hasHash = !!window.location.hash
+    const toHash = (p: string) => { window.location.hash = p }
+    if (!hasHash) {
+      if (path === '/login' || path === '/admin/login' || path === '/patient/login' || path === '/doctor/login' || path === '/pharmacy/login') {
+        toHash('/login')
+      } else if (path === '/register' || path === '/patient/register') {
+        toHash('/register')
+      } else if (path === '/' || path === '') {
+        toHash('/login')
+      }
+    }
+  }, [])
   return (
     <ConfigProvider locale={zhCN}>
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
+        <HashRouter>
           <Suspense fallback={
             <div style={{ 
               display: 'flex', 
@@ -35,9 +50,11 @@ function App() {
               加载中...
             </div>
           }>
-            <AppRouter />
+            <ErrorBoundary>
+              <AppRouter />
+            </ErrorBoundary>
           </Suspense>
-        </BrowserRouter>
+        </HashRouter>
       </QueryClientProvider>
     </ConfigProvider>
   )

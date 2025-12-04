@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Card, Row, Col, Typography, Button, Input, Space, List, Avatar, Tag, Modal, Form, InputNumber, Badge, message, Divider } from 'antd'
+import { Card, Row, Col, Typography, Button, Input, Space, List, Avatar, Tag, Modal, Form, InputNumber, Badge, message, Divider, Select } from 'antd'
 import { SearchOutlined, ShoppingCartOutlined, PlusOutlined, MinusOutlined, DeleteOutlined, MedicineBoxOutlined, StarOutlined, FilterOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation } from '@tanstack/react-query'
@@ -9,6 +9,7 @@ import dayjs from 'dayjs'
 
 const { Title, Text } = Typography
 const { Search } = Input
+const { Option } = Select
 
 interface CartItem {
   id: string
@@ -467,7 +468,7 @@ export default function OnlinePharmacy() {
               <Button 
                 type="primary" 
                 htmlType="submit"
-                loading={createOrderMutation.isLoading}
+                loading={createOrderMutation.isPending}
                 className="flex-1"
               >
                 提交订单

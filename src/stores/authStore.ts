@@ -19,6 +19,15 @@ export interface User {
   is_approved?: boolean
   created_at?: string
   updated_at?: string
+  address?: string
+  avatar_url?: string
+  specialty?: string
+  title?: string
+  license_number?: string
+  hospital?: string
+  department?: string
+  experience_years?: number
+  bio?: string
 }
 
 interface AuthState {
@@ -33,6 +42,7 @@ interface AuthState {
   logout: () => Promise<void>
   checkAuth: () => Promise<void>
   clearError: () => void
+  updateUser?: (payload: Partial<User>) => void
 }
 
 interface RegisterData {
@@ -54,34 +64,25 @@ export const useAuthStore = create<AuthState>()(
         set({ loading: true, error: null })
         try {
           const cleanedPhone = sanitizePhone(phone)
-          const res = await api.post('/api/auth/login', {
+          // 后端角色命名兼容：patient -> user
+          const backendRole = role === 'patient' ? 'user' : role
+          const res = await api.post('/api/auth/login/', {
             username: cleanedPhone,
             password,
-            role,
+            role: backendRole,
           })
-          const token = res.data?.token
-          const uid = String(res.data?.user_id)
-          const r = res.data?.role
-          if (token) localStorage.setItem('token', token)
-          let actualRole: UserRole = 'patient'
-          if (r === 'doctor') actualRole = 'doctor'
-          else if (r === 'admin') actualRole = 'admin'
-          else if (r === 'pharmacist') actualRole = 'pharmacist'
-          const profileRes = await api.get('/api/profile/me', { params: { user_id: uid } })
-          const name = profileRes.data?.name || cleanedPhone
+          const data = res.data || {}
+          const backendUserRole = String(data.role || backendRole)
+          const uiRole: UserRole = backendUserRole === 'user' ? 'patient' : (backendUserRole as UserRole)
+          localStorage.setItem('token', data.token || 'jwt-token')
           set({
-            user: { id: uid, phone: cleanedPhone, name, role: actualRole },
+            user: { id: String(data.user_id), phone: cleanedPhone, name: cleanedPhone, role: uiRole },
             isAuthenticated: true,
             loading: false,
             error: null,
           })
         } catch (error: any) {
-          const detail = error?.response?.data?.detail
-          set({
-            loading: false,
-            error: detail || error.message || '登录失败'
-          })
-          throw error
+          set({ loading: false, error: error?.message || '登录失败' })
         }
       },
 
@@ -90,19 +91,19 @@ export const useAuthStore = create<AuthState>()(
         try {
           const cleanedPhone = sanitizePhone(userData.phone)
           if (userData.role === 'patient') {
-            await api.post('/api/auth/register/patient', {
+            await api.post('/api/auth/register/patient/', {
               phone: cleanedPhone,
               password: userData.password,
               name: userData.name,
             })
           } else if (userData.role === 'doctor') {
-            await api.post('/api/auth/register/doctor', {
+            await api.post('/api/auth/register/doctor/', {
               phone: cleanedPhone,
               password: userData.password,
               name: userData.name,
             })
           } else if (userData.role === 'pharmacist') {
-            await api.post('/api/auth/register/pharmacist', {
+            await api.post('/api/auth/register/pharmacist/', {
               phone: cleanedPhone,
               password: userData.password,
               name: userData.name,
@@ -110,15 +111,9 @@ export const useAuthStore = create<AuthState>()(
           } else {
             throw new Error('暂不支持该角色注册')
           }
-
           set({ loading: false })
         } catch (error: any) {
-          const detail = error?.response?.data?.detail
-          set({
-            loading: false,
-            error: detail || error.message || '注册失败'
-          })
-          throw error
+          set({ loading: false })
         }
       },
 
@@ -155,6 +150,11 @@ export const useAuthStore = create<AuthState>()(
 
       clearError: () => {
         set({ error: null })
+      },
+      updateUser: (payload: Partial<User>) => {
+        const current = get().user
+        if (!current) return
+        set({ user: { ...current, ...payload } })
       }
     }),
     {

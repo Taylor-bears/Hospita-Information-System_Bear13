@@ -12,3 +12,8 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* 关闭开发环境的 Vite 错误遮罩，避免阻断页面操作 */
+vite-error-overlay, #vite-error-overlay {
+  display: none !important;
+}

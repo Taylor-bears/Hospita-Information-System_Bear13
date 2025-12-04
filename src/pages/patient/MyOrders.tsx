@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import ErrorBoundary from '../../components/ErrorBoundary'
-import { Card, Table, Tag, Button, Space, Modal, Form, DatePicker, Select, message, Descriptions, List } from 'antd'
+import { Card, Table, Tag, Button, Space, Modal, Form, DatePicker, Select, message, Descriptions, List, Row, Col } from 'antd'
 import { EyeOutlined, ShoppingCartOutlined, DollarOutlined, TruckOutlined } from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
 import api from '../../lib/api'
+import { getOrderStatusColor, getOrderStatusText, getPaymentStatusColor, getPaymentStatusText, getDeliveryTypeText } from '../../lib/status'
+import { useMyOrders } from '../../data/orders'
 import { useAuthStore } from '../../stores/authStore'
 import dayjs from 'dayjs'
 
@@ -14,71 +16,9 @@ const MyOrders: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<any>(null)
   const [detailModalVisible, setDetailModalVisible] = useState(false)
 
-  const [orders, setOrders] = useState<any[]>([])
-  const refetch = async () => {
-    try {
-      // 后端订单接口暂未提供，这里返回空列表以避免页面崩溃
-      setOrders([])
-    } catch (error) {
-      message.error('获取订单失败')
-    }
-  }
-  React.useEffect(() => { refetch() }, [user?.id])
+  const { data: orders = [], isLoading, refetch } = useMyOrders(user?.id)
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending': return 'orange'
-      case 'confirmed': return 'blue'
-      case 'processing': return 'cyan'
-      case 'shipped': return 'purple'
-      case 'delivered': return 'green'
-      case 'cancelled': return 'red'
-      case 'refunded': return 'default'
-      default: return 'default'
-    }
-  }
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'pending': return '待确认'
-      case 'confirmed': return '已确认'
-      case 'processing': return '处理中'
-      case 'shipped': return '已发货'
-      case 'delivered': return '已送达'
-      case 'cancelled': return '已取消'
-      case 'refunded': return '已退款'
-      default: return status
-    }
-  }
-
-  const getPaymentStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending': return 'orange'
-      case 'paid': return 'green'
-      case 'failed': return 'red'
-      case 'refunded': return 'default'
-      default: return 'default'
-    }
-  }
-
-  const getPaymentStatusText = (status: string) => {
-    switch (status) {
-      case 'pending': return '待支付'
-      case 'paid': return '已支付'
-      case 'failed': return '支付失败'
-      case 'refunded': return '已退款'
-      default: return status
-    }
-  }
-
-  const getDeliveryTypeText = (type: string) => {
-    switch (type) {
-      case 'pickup': return '到店自取'
-      case 'delivery': return '快递配送'
-      case 'express': return '加急配送'
-      default: return type
-    }
-  }
+  
 
   const columns = [
     {
@@ -137,9 +77,9 @@ const MyOrders: React.FC = () => {
       key: 'status',
       width: 100,
       render: (status: string) => (
-        <Tag color={getStatusColor(status)}>
-          {getStatusText(status)}
-        </Tag>
+          <Tag color={getOrderStatusColor(status)}>
+          {getOrderStatusText(status)}
+          </Tag>
       ),
     },
     {
@@ -148,9 +88,9 @@ const MyOrders: React.FC = () => {
       key: 'payment_status',
       width: 100,
       render: (status: string) => (
-        <Tag color={getPaymentStatusColor(status)}>
+          <Tag color={getPaymentStatusColor(status)}>
           {getPaymentStatusText(status)}
-        </Tag>
+          </Tag>
       ),
     },
     {
@@ -187,7 +127,7 @@ const MyOrders: React.FC = () => {
     <div className="p-6">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h2 style={{ fontSize: 18, fontWeight: 600 }}>我的订单</h2>
-        <Button onClick={() => refetch()}>刷新</Button>
+        <Button onClick={() => refetch()} loading={isLoading}>刷新</Button>
       </div>
       {/* 搜索和筛选 */}
       <Card style={{ marginBottom: 16 }}>
@@ -238,6 +178,7 @@ const MyOrders: React.FC = () => {
           columns={columns}
           dataSource={orders}
           rowKey="id"
+          loading={isLoading}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
@@ -265,8 +206,8 @@ const MyOrders: React.FC = () => {
               <Descriptions column={2}>
                 <Descriptions.Item label="订单编号">{selectedOrder.order_number}</Descriptions.Item>
                 <Descriptions.Item label="订单状态">
-                  <Tag color={getStatusColor(selectedOrder.status)}>
-                    {getStatusText(selectedOrder.status)}
+                  <Tag color={getOrderStatusColor(selectedOrder.status)}>
+                    {getOrderStatusText(selectedOrder.status)}
                   </Tag>
                 </Descriptions.Item>
                 <Descriptions.Item label="订单金额">

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import ErrorBoundary from '../../components/ErrorBoundary'
-import { Card, Input, Button, Space, message, Avatar, Tag, Spin, Empty, Modal, Form, Select } from 'antd'
+import { Card, Input, Button, Space, message, Avatar, Tag, Spin, Empty, Modal, Form, Select, Row, Col } from 'antd'
 import { SendOutlined, RobotOutlined, UserOutlined, MedicineBoxOutlined, ClearOutlined, HistoryOutlined } from '@ant-design/icons'
 import api from '../../lib/api'
 import { useAuthStore } from '../../stores/authStore'
@@ -295,33 +295,12 @@ export default function AIConsult() {
         }
         assistantContent += '*以上建议仅供参考，具体诊断请以医生意见为准。*'
       }
-      
-      let assistantContent = analysis.analysis + '\n\n'
-      
-      if (analysis.recommendations.length > 0) {
-        assistantContent += '## 建议措施\n'
-        analysis.recommendations.forEach((rec, index) => {
-          assistantContent += `${index + 1}. ${rec}\n`
-        })
-        assistantContent += '\n'
-      }
-      
-      // 根据风险等级添加警告
-      if (analysis.riskLevel === 'high') {
-        assistantContent += '⚠️ **重要提醒**：您的症状可能需要及时就医，建议尽快到医院就诊。\n\n'
-      } else if (analysis.riskLevel === 'medium') {
-        assistantContent += '⚠️ **注意事项**：建议您密切观察症状变化，如持续不缓解请及时就医。\n\n'
-      }
-      
-      assistantContent += '*以上建议仅供参考，具体诊断请以医生意见为准。*'
 
       const assistantMessage: Message = {
         id: `msg_${Date.now() + 1}`,
         role: 'assistant',
         content: assistantContent,
-        timestamp: new Date().toISOString(),
-        symptoms: analysis.symptoms,
-        recommendations: analysis.recommendations
+        timestamp: new Date().toISOString()
       }
 
       setMessages(prev => [...prev, assistantMessage])
@@ -355,6 +334,7 @@ export default function AIConsult() {
     setInputValue(symptomText)
     setSymptomModalVisible(false)
     symptomForm.resetFields()
+    handleSendMessage()
   }
 
   const loadHistoryConsultation = async (consultationId: string) => {
@@ -457,7 +437,7 @@ export default function AIConsult() {
                               <div className="text-xs text-gray-500 mb-1">识别到的症状：</div>
                               <div className="flex flex-wrap gap-1">
                                 {message.symptoms.map((symptom, index) => (
-                                  <Tag key={index} size="small" color="blue">{symptom}</Tag>
+                                  <Tag key={index} color="blue">{symptom}</Tag>
                                 ))}
                               </div>
                             </div>

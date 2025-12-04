@@ -70,8 +70,7 @@ export default function InventoryManagement() {
           editingRecord.id,
           values.quantity - editingRecord.quantity,
           values.quantity > editingRecord.quantity ? 'inbound' : 'outbound',
-          undefined,
-          values.reason
+          undefined
         )
         if (error) throw error
       } else {
@@ -85,7 +84,7 @@ export default function InventoryManagement() {
       setModalVisible(false)
       setEditingRecord(null)
       form.resetFields()
-      queryClient.invalidateQueries(['inventory'])
+      queryClient.invalidateQueries({ queryKey: ['inventory'] })
     },
     onError: (error: any) => {
       message.error(error.message || '库存更新失败')
@@ -103,8 +102,7 @@ export default function InventoryManagement() {
         selectedInventory.id,
         movementQuantity,
         values.movementType,
-        undefined,
-        values.reason
+        undefined
       )
       
       if (error) throw error
@@ -114,7 +112,7 @@ export default function InventoryManagement() {
       setMovementModalVisible(false)
       setSelectedInventory(null)
       movementForm.resetFields()
-      queryClient.invalidateQueries(['inventory'])
+      queryClient.invalidateQueries({ queryKey: ['inventory'] })
     },
     onError: (error: any) => {
       message.error(error.message || '库存变动失败')
@@ -410,7 +408,7 @@ export default function InventoryManagement() {
         visible={modalVisible}
         onOk={handleModalOk}
         onCancel={handleModalCancel}
-        confirmLoading={updateInventoryMutation.isLoading}
+        confirmLoading={updateInventoryMutation.isPending}
       >
         <Form form={form} layout="vertical">
           <Form.Item name="drugId" label="药品" rules={[{ required: true }]}>
@@ -442,7 +440,7 @@ export default function InventoryManagement() {
         visible={movementModalVisible}
         onOk={handleMovementModalOk}
         onCancel={handleMovementModalCancel}
-        confirmLoading={stockMovementMutation.isLoading}
+        confirmLoading={stockMovementMutation.isPending}
       >
         <Form form={movementForm} layout="vertical">
           <Form.Item name="movementType" label="变动类型" rules={[{ required: true }]}>
