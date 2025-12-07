@@ -1,57 +1,25 @@
-# React + TypeScript + Vite
+# 医疗管理系统（前后端分离）
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 目录
+- `frontend/`：React + Vite 前端（患者/医生/管理员/药房页面）。
+- `backend/`：FastAPI 后端（登录、管理员、预约等路由；SQLite 数据库存放于此）。
+- `docs/`：产品/技术/测试/归档文档。
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## 快速启动
+后端
+```powershell
+cd backend
+python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
 ```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  extends: [
-    // other configs...
-    // Enable lint rules for React
-    reactX.configs['recommended-typescript'],
-    // Enable lint rules for React DOM
-    reactDom.configs.recommended,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+前端
+```powershell
+cd frontend
+npm install
+npm run dev
 ```
+默认前端 http://localhost:5173 ，后端 http://127.0.0.1:8000。
+
+## 备注
+- 数据库文件：`backend/medical.db`，重建可参考 `backend/init_db.sql`。
+- 环境变量：`backend/.env.example` 复制为 `backend/.env`。
+- 预约/排班等接口位于 `backend/appointments/backend/routes.py`；前端 API 封装在 `frontend/src/lib/api.ts`。
