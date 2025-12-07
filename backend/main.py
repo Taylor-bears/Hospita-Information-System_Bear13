@@ -113,7 +113,7 @@ def create_default_doctor_and_schedules():
                 date=d,
                 start_time=time(9, 0),
                 end_time=time(12, 0),
-                capacity=16,
+                capacity=0,
                 booked_count=0,
                 status=models.ScheduleStatus.open
             )
@@ -129,7 +129,7 @@ def create_default_doctor_and_schedules():
                 date=d,
                 start_time=time(13, 0),
                 end_time=time(17, 0),
-                capacity=16,
+                capacity=0,
                 booked_count=0,
                 status=models.ScheduleStatus.open
             )

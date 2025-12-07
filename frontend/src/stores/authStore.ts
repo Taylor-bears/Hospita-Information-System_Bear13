@@ -37,7 +37,7 @@ interface AuthState {
   error: string | null
   
   // Actions
-  login: (phone: string, password: string, role: UserRole) => Promise<void>
+  login: (phone: string, password: string, role: UserRole) => Promise<UserRole>
   register: (userData: RegisterData) => Promise<void>
   logout: () => Promise<void>
   checkAuth: () => Promise<void>
@@ -60,12 +60,12 @@ export const useAuthStore = create<AuthState>()(
       loading: false,
       error: null,
 
-  login: async (phone: string, password: string, role: UserRole) => {
-    set({ loading: true, error: null })
-    try {
-      const cleanedPhone = sanitizePhone(phone)
-      // 后端角色命名兼容：patient -> user
-      const backendRole = role === 'patient' ? 'user' : role
+      login: async (phone: string, password: string, role: UserRole) => {
+        set({ loading: true, error: null })
+        try {
+          const cleanedPhone = sanitizePhone(phone)
+          // 后端角色命名兼容：patient -> user
+          const backendRole = role === 'patient' ? 'user' : role
       const res = await api.post('/api/auth/login/', {
         username: cleanedPhone,
         password,
@@ -85,16 +85,18 @@ export const useAuthStore = create<AuthState>()(
       } catch (_) {
         // 忽略档案获取失败，继续使用手机号
       }
-      set({
-        user: { id: String(data.user_id), phone: cleanedPhone, name: profileName, role: uiRole, ...profile },
-        isAuthenticated: true,
-        loading: false,
-        error: null,
-      })
-    } catch (error: any) {
-      set({ loading: false, error: error?.message || '登录失败' })
-    }
-  },
+          set({
+            user: { id: String(data.user_id), phone: cleanedPhone, name: profileName, role: uiRole, ...profile },
+            isAuthenticated: true,
+            loading: false,
+            error: null,
+          })
+          return uiRole
+        } catch (error: any) {
+          set({ loading: false, error: error?.message || '登录失败' })
+          throw error
+        }
+      },
 
       register: async (userData: RegisterData) => {
         set({ loading: true, error: null })

@@ -21,12 +21,11 @@ export default function LoginPage() {
 
   const handleSubmit = async (values: LoginForm) => {
     try {
-      await login(values.phone, values.password, values.role)
+      const resolvedRole = await login(values.phone, values.password, values.role)
       message.success('登录成功')
       
       // 根据实际登录角色跳转到对应页面
-      const role = user?.role || values.role
-      switch (role) {
+      switch (resolvedRole) {
         case 'patient':
           navigate('/patient')
           break

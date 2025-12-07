@@ -236,7 +236,7 @@ const AppointmentManagement: React.FC = () => {
     const res = await api.get(`/appointments/doctor/${user.id}/schedules`, { params: { date: dateStr } })
     const list: any[] = Array.isArray(res.data) ? res.data : []
     const mapped = list.map(s => ({
-      period: Number(String(s.start_time).split(':')[0]) < 12 ? '上午' : '下午',
+      period: Number(String(s.start_time).split(':')[0]) < 12 ? '上午排班' : '下午排班',
       capacity: s.capacity,
       booked: s.booked_count
     }))
@@ -349,7 +349,7 @@ const AppointmentManagement: React.FC = () => {
           </div>
           <div className="mt-6">
             <Button type="primary" onClick={fetchAppointments}>
-              刷新数据
+              刷新排班
             </Button>
           </div>
         </div>
@@ -359,7 +359,7 @@ const AppointmentManagement: React.FC = () => {
       <Card className="mb-6" title={
         <Space>
           <CalendarOutlined />
-          <span>设置排班（上午/下午容量）</span>
+          <span>设置排班（上午/下午排班）</span>
         </Space>
       }>
         <Form form={scheduleForm} layout="inline" onFinish={createOrUpdateAmPm}>
@@ -370,10 +370,10 @@ const AppointmentManagement: React.FC = () => {
               onChange={(d) => { if (d) refreshDaySlots(d.format('YYYY-MM-DD')) }} 
             />
           </Form.Item>
-          <Form.Item label="上午容量" name="amCapacity">
+          <Form.Item label="上午排班" name="amCapacity">
             <InputNumber min={0} max={200} placeholder="人数" />
           </Form.Item>
-          <Form.Item label="下午容量" name="pmCapacity">
+          <Form.Item label="下午排班" name="pmCapacity">
             <InputNumber min={0} max={200} placeholder="人数" />
           </Form.Item>
           <Form.Item>
@@ -384,14 +384,14 @@ const AppointmentManagement: React.FC = () => {
 
       {/* 当日容量概览 */}
       {daySlots.length > 0 && (
-        <Card className="mb-6" title="当日容量概览">
+        <Card className="mb-6" title="当日排班概览">
           <Table
             dataSource={daySlots}
             rowKey={(r) => r.period}
             pagination={false}
             size="small"
             columns={[
-              { title: '时段', dataIndex: 'period', key: 'period' },
+              { title: '时间段', dataIndex: 'period', key: 'period' },
               { title: '容量', dataIndex: 'capacity', key: 'capacity' },
               { title: '已预约', dataIndex: 'booked', key: 'booked' },
             ]}

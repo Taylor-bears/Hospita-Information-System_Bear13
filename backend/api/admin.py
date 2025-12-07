@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
+from typing import List, Optional
 
 from backend.database import get_db
 from backend import models
@@ -45,6 +46,125 @@ def stats(db: Session = Depends(get_db)):
 
 class ApproveBody(BaseModel):
     approved: bool
+
+
+# ========== 审核（医生/药房工作人员） ==========
+
+class ReviewApproveBody(BaseModel):
+    notes: Optional[str] = None
+
+
+class ReviewRejectBody(BaseModel):
+    reason: Optional[str] = None
+
+
+@router.get("/reviews/items")
+def review_items(
+    page: int = 1,
+    pageSize: int = 20,
+    status: Optional[str] = None,  # pending/approved/rejected/all
+    role: Optional[str] = None,    # doctor/pharmacist/all
+    db: Session = Depends(get_db)
+):
+    allowed_roles = [models.UserRole.doctor, models.UserRole.pharmacist]
+    q = db.query(models.User).filter(models.User.role.in_(allowed_roles))
+    if role and role != "all":
+        try:
+            q = q.filter(models.User.role == models.UserRole(role))
+        except Exception:
+            pass
+    if status and status != "all":
+        if status == "approved":
+            q = q.filter(models.User.status == models.UserStatus.active)
+        elif status == "pending":
+            q = q.filter(models.User.status == models.UserStatus.pending)
+        elif status == "rejected":
+            # 未存储 rejected 状态，这里返回空
+            q = q.filter(models.User.id == -1)
+    total = q.count()
+    items = q.order_by(models.User.created_at.desc()).offset((page - 1) * pageSize).limit(pageSize).all()
+    result = []
+    for u in items:
+        profile = db.query(models.DoctorProfile).filter(models.DoctorProfile.user_id == u.id).first()
+        mapped_status = "approved" if u.status == models.UserStatus.active else "pending"
+        result.append({
+            "id": u.id,
+            "name": getattr(profile, "name", None) or u.phone,
+            "phone": u.phone,
+            "role": u.role.value if hasattr(u.role, "value") else str(u.role),
+            "status": mapped_status,
+            "submittedAt": str(getattr(u, "created_at", "")),
+            "updatedAt": str(getattr(u, "created_at", "")),
+            "payload": {
+                "department": getattr(profile, "department", None),
+                "license_number": getattr(profile, "license_number", None),
+            }
+        })
+    return {"items": result, "total": total, "page": page, "pageSize": pageSize}
+
+
+@router.post("/reviews/{user_id}/approve")
+def review_approve(user_id: int, body: ReviewApproveBody, db: Session = Depends(get_db)):
+    u = db.query(models.User).filter(models.User.id == user_id).first()
+    if not u:
+        raise HTTPException(status_code=404, detail="用户不存在")
+    if u.role not in [models.UserRole.doctor, models.UserRole.pharmacist]:
+        raise HTTPException(status_code=400, detail="仅医生/药房账号可审核")
+    u.status = models.UserStatus.active
+    db.commit()
+    db.add(models.AdminAudit(action="approve_user", target_type="user", target_id=user_id, info=f"role={u.role}"))
+    db.commit()
+    return {"message": "ok"}
+
+
+@router.post("/reviews/{user_id}/reject")
+def review_reject(user_id: int, body: ReviewRejectBody, db: Session = Depends(get_db)):
+    u = db.query(models.User).filter(models.User.id == user_id).first()
+    if not u:
+        raise HTTPException(status_code=404, detail="用户不存在")
+    if u.role not in [models.UserRole.doctor, models.UserRole.pharmacist]:
+        raise HTTPException(status_code=400, detail="仅医生/药房账号可审核")
+    # 删除相关档案
+    if u.role == models.UserRole.doctor:
+        prof = db.query(models.DoctorProfile).filter(models.DoctorProfile.user_id == user_id).first()
+        if prof:
+            db.delete(prof)
+    db.delete(u)
+    db.commit()
+    db.add(models.AdminAudit(action="reject_user", target_type="user", target_id=user_id, info=body.reason or ""))
+    db.commit()
+    return {"message": "rejected"}
+
+
+class BatchBody(BaseModel):
+    action: str
+    ids: List[int]
+    reason: Optional[str] = None
+
+
+@router.post("/reviews/batch")
+def review_batch(body: BatchBody, db: Session = Depends(get_db)):
+    if body.action not in ["approve", "reject"]:
+        raise HTTPException(status_code=400, detail="非法操作")
+    success = []
+    for uid in body.ids:
+        u = db.query(models.User).filter(models.User.id == uid).first()
+        if not u or u.role not in [models.UserRole.doctor, models.UserRole.pharmacist]:
+            continue
+        if body.action == "approve":
+            u.status = models.UserStatus.active
+        else:
+            # reject: 删除档案和用户
+            if u.role == models.UserRole.doctor:
+                prof = db.query(models.DoctorProfile).filter(models.DoctorProfile.user_id == uid).first()
+                if prof:
+                    db.delete(prof)
+            db.delete(u)
+        success.append(uid)
+    db.commit()
+    db.add(models.AdminAudit(action=f"batch_{body.action}", target_type="user", info=str(success)))
+    db.commit()
+    return {"success": success, "failed": []}
 
 
 @router.put("/doctor/{user_id}/approve")

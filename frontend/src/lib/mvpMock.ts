@@ -16,7 +16,7 @@ interface MvpUser {
   updated_at: string
 }
 
-const ENABLE_MVP = true
+const ENABLE_MVP = false
 
 function now() {
   return new Date().toISOString()
