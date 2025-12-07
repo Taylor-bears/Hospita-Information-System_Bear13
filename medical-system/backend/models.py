@@ -37,8 +37,10 @@ class ScheduleStatus(str, enum.Enum):
     closed = "closed"
 
 class AppointmentStatus(str, enum.Enum):
+    scheduled = "scheduled"
     pending = "pending"
     confirmed = "confirmed"
+    completed = "completed"
     cancelled = "cancelled"
 
 class DoctorSchedule(Base):

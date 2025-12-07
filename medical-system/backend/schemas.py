@@ -48,6 +48,7 @@ class ScheduleResponse(BaseModel):
     capacity: int
     booked_count: int
     status: ScheduleStatus
+    fully_booked: Optional[bool] = None
 
     class Config:
         from_attributes = True

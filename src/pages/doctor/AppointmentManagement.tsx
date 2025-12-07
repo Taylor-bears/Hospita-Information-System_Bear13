@@ -18,7 +18,7 @@ interface Appointment {
   patient_phone: string
   appointment_date: string
   appointment_time: string
-  status: 'scheduled' | 'completed' | 'cancelled'
+  status: 'scheduled' | 'confirmed' | 'pending' | 'completed' | 'cancelled'
   notes: string
   symptoms: string
   created_at: string
@@ -51,6 +51,10 @@ const AppointmentManagement: React.FC = () => {
     try {
       const res = await api.get(`/appointments/doctor/${user.id}`)
       let data: Appointment[] = Array.isArray(res.data) ? res.data : []
+      data = data.map(a => {
+        const normalizedStatus = (a.status === 'confirmed' || a.status === 'pending') ? 'scheduled' : a.status
+        return { ...a, status: normalizedStatus }
+      })
       if (filterStatus !== 'all') {
         data = data.filter(a => a.status === filterStatus)
       }
@@ -100,7 +104,10 @@ const AppointmentManagement: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'scheduled':
+      case 'confirmed':
         return 'blue'
+      case 'pending':
+        return 'orange'
       case 'completed':
         return 'green'
       case 'cancelled':
@@ -113,7 +120,10 @@ const AppointmentManagement: React.FC = () => {
   const getStatusText = (status: string) => {
     switch (status) {
       case 'scheduled':
+      case 'confirmed':
         return '已预约'
+      case 'pending':
+        return '待确认'
       case 'completed':
         return '已完成'
       case 'cancelled':
@@ -133,6 +143,12 @@ const AppointmentManagement: React.FC = () => {
     total: appointments.length,
     scheduled: appointments.filter(a => a.status === 'scheduled').length,
     completed: appointments.filter(a => a.status === 'completed').length
+  }
+
+  const disabledScheduleDate = (current: dayjs.Dayjs) => {
+    const today = dayjs().startOf('day')
+    const max = dayjs().add(7, 'day').endOf('day')
+    return !!current && (current < today || current > max)
   }
 
   const columns = [
@@ -349,7 +365,10 @@ const AppointmentManagement: React.FC = () => {
         <Form form={scheduleForm} layout="inline" onFinish={createOrUpdateAmPm}>
           <Form.Item label="日期" name="workDate" rules={[{ required: true, message: '请选择日期' }]}
           >
-            <DatePicker onChange={(d) => { if (d) refreshDaySlots(d.format('YYYY-MM-DD')) }} />
+            <DatePicker 
+              disabledDate={disabledScheduleDate}
+              onChange={(d) => { if (d) refreshDaySlots(d.format('YYYY-MM-DD')) }} 
+            />
           </Form.Item>
           <Form.Item label="上午容量" name="amCapacity">
             <InputNumber min={0} max={200} placeholder="人数" />

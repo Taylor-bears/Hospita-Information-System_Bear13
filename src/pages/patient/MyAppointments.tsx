@@ -51,6 +51,7 @@ const MyAppointments: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'orange'
+      case 'scheduled': return 'blue'
       case 'confirmed': return 'blue'
       case 'completed': return 'green'
       case 'cancelled': return 'red'
@@ -62,6 +63,7 @@ const MyAppointments: React.FC = () => {
   const getStatusText = (status: string) => {
     switch (status) {
       case 'pending': return '待确认'
+      case 'scheduled': return '已预约'
       case 'confirmed': return '已确认'
       case 'completed': return '已完成'
       case 'cancelled': return '已取消'

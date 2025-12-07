@@ -55,6 +55,7 @@ interface Schedule {
   end_time: string
   capacity: number
   booked_count: number
+  fully_booked?: boolean
 }
 
 interface Appointment {
@@ -291,7 +292,7 @@ export default function AppointmentBooking() {
 
   const disabledDate = (current: dayjs.Dayjs) => {
     const today = dayjs().startOf('day')
-    const max = dayjs().add(30, 'day').endOf('day')
+    const max = dayjs().add(7, 'day').endOf('day')
     return !!current && (current < today || current > max)
   }
 
@@ -369,7 +370,7 @@ export default function AppointmentBooking() {
                 >
                   {schedules.map(s => {
                     const label = getPeriodLabel(s)
-                    const full = s.booked_count >= s.capacity
+                    const full = s.fully_booked ?? (s.booked_count >= s.capacity)
                     const text = full ? `${label}（已预约满）` : label
                     const value = `${s.id}|${label}`
                     return (
