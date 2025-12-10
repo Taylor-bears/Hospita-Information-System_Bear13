@@ -17,6 +17,7 @@ const ProfilePage = lazy(() => import('../pages/ProfilePage'))
 const DoctorDashboard = lazy(() => import('../pages/doctor/DoctorDashboard'))
 const AppointmentManagement = lazy(() => import('../pages/doctor/AppointmentManagement'))
 const PrescriptionManagement = lazy(() => import('../pages/doctor/PrescriptionManagement'))
+const MedicalRecordPage = lazy(() => import('../pages/doctor/MedicalRecordPage'))
 
 // 管理员页面
 const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard'))
@@ -94,6 +95,16 @@ export default function AppRouter() {
       />
       
       {/* 医生路由 */}
+      <Route
+        path="/doctor/records"
+        element={
+          <ProtectedRoute allowedRoles={['doctor']}>
+            <AppLayout>
+              <MedicalRecordPage />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/doctor"
         element={

@@ -1,3 +1,31 @@
+
+# ==================== 病例管理 ====================
+from typing import Optional, Literal
+from pydantic import BaseModel
+from datetime import datetime
+
+class MedicalRecordBase(BaseModel):
+    patient_id: int
+    doctor_id: int
+    diagnosis: str
+    treatment: Optional[str] = None
+    status: Optional[Literal['active', 'archived']] = 'active'
+
+class MedicalRecordCreate(MedicalRecordBase):
+    pass
+
+class MedicalRecordUpdate(BaseModel):
+    diagnosis: Optional[str] = None
+    treatment: Optional[str] = None
+    status: Optional[Literal['active', 'archived']] = None
+
+class MedicalRecordResponse(MedicalRecordBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import date, time, datetime

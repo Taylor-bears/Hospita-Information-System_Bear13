@@ -12,9 +12,15 @@ class UserRole(str, enum.Enum):
     user = "user"
     pharmacist = "pharmacist"
 
+
 class UserStatus(str, enum.Enum):
     active = "active"
     pending = "pending"
+
+# ==================== 病例管理 ====================
+class MedicalRecordStatus(str, enum.Enum):
+    active = "active"
+    archived = "archived"
 
 class User(Base):
     __tablename__ = "users"
@@ -135,3 +141,18 @@ class PatientProfile(Base):
     id_card = Column(String(20))
     email = Column(String(100))
     created_at = Column(TIMESTAMP, server_default=func.now())
+
+    # ==================== 病例管理 ====================
+
+
+class MedicalRecord(Base):
+    __tablename__ = "medical_records"
+
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    doctor_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    diagnosis = Column(String(1024), nullable=False)
+    treatment = Column(String(1024), nullable=True)
+    status = Column(Enum(MedicalRecordStatus), default=MedicalRecordStatus.active)
+    created_at = Column(TIMESTAMP, server_default=func.now())
+    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())

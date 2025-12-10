@@ -103,7 +103,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
             label: '开具处方',
             onClick: () => navigate('/doctor/prescriptions')
           },
-          // 移除不存在的“患者记录”菜单项
+          {
+            key: '/doctor/records',
+            icon: <FileTextOutlined />,
+            label: '病例管理',
+            onClick: () => navigate('/doctor/records')
+          },
         ]
       case 'admin':
         return [
