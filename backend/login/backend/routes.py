@@ -33,9 +33,9 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     if db_user:
         raise HTTPException(status_code=400, detail="该手机号已被注册")
 
-    # 设置状态：普通用户直接active，医生需要pending
+    # 设置状态：普通用户直接active，医生和药师需要pending
     user_status = models.UserStatus.active
-    if user.role == models.UserRole.doctor:
+    if user.role in [models.UserRole.doctor, models.UserRole.pharmacist]:
         user_status = models.UserStatus.pending
     
     # 管理员账号不能通过注册接口创建

@@ -20,16 +20,27 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 # 导入各模块的路由
 from login.backend.routes import router as login_router
-from administrator.backend.routes import router as admin_router
+# from administrator.backend.routes import router as admin_router  # Deprecated: Merged into api.admin
 from appointments.backend.routes import router as appointments_router
 from ai.routes import router as ai_router
 from api.auth import router as api_auth_router
 from api.admin import router as api_admin_router
-from doctor.api import router as api_doctor_router
+from api.doctor import router as api_doctor_router
+from api.pharmacy import router as api_pharmacy_router
 from api.ai_consult import router as api_ai_consult_router
 from api.profile import router as api_profile_router
+from api.orders import router as api_orders_router
+from api.stats import router as api_stats_router
 
 models.Base.metadata.create_all(bind=engine)
+
+# 启动时尝试加载初始数据
+try:
+    from backend.seed_data import seed_from_json
+    db = next(get_db())
+    seed_from_json(db)
+except Exception as e:
+    print(f"自动加载初始数据失败: {e}")
 
 app = FastAPI(title="医疗管理系统API", version="1.0.0")
 
@@ -42,14 +53,17 @@ app.add_middleware(
 )
 
 app.include_router(login_router)
-app.include_router(admin_router)
+# app.include_router(admin_router)
 app.include_router(appointments_router)
 app.include_router(ai_router)
 app.include_router(api_auth_router)
 app.include_router(api_admin_router)
 app.include_router(api_doctor_router)
+app.include_router(api_pharmacy_router)
 app.include_router(api_ai_consult_router)
 app.include_router(api_profile_router)
+app.include_router(api_orders_router)
+app.include_router(api_stats_router)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

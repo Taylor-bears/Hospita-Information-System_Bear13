@@ -37,7 +37,7 @@ def _call_openrouter(messages: list, model: str = "deepseek/deepseek-chat", temp
         "max_tokens": max_tokens,
     }
     try:
-        resp = requests.post(url, headers=headers, data=json.dumps(payload), timeout=15)
+        resp = requests.post(url, headers=headers, data=json.dumps(payload), timeout=60)
         if resp.status_code >= 400:
             raise AISuggestionError("OpenRouter 请求失败", code="openrouter_http_error", detail={"status": resp.status_code, "body": resp.text})
         data = resp.json()
@@ -67,7 +67,7 @@ def _call_deepseek(messages: list, model: str = "deepseek-chat", temperature: fl
         "max_tokens": max_tokens,
     }
     try:
-        resp = requests.post(url, headers=headers, data=json.dumps(payload), timeout=15)
+        resp = requests.post(url, headers=headers, data=json.dumps(payload), timeout=60)
         if resp.status_code >= 400:
             raise AISuggestionError("DeepSeek 请求失败", code="deepseek_http_error", detail={"status": resp.status_code, "body": resp.text})
         data = resp.json()
@@ -85,10 +85,24 @@ def generate_suggestion(payload: Dict[str, Any]) -> Dict[str, Any]:
     diagnosis = payload.get("diagnosis", "")
     medications = payload.get("medications", [])
     constraints = payload.get("constraints", {})
+    patient_info = constraints.get("patient_info", "")
+    available_departments = constraints.get("available_departments", [])
+    
+    dept_prompt = ""
+    if available_departments:
+        dept_list_str = "、".join(available_departments)
+        dept_prompt = f"本院现有科室包括：{dept_list_str}。请务必只推荐上述列表中的科室名称，不要臆造不存在的科室。"
+
     language = payload.get("language", "zh")
+    current_date = time.strftime('%Y年%m月%d日')
 
     messages = [
-        {"role": "system", "content": "你是资深临床决策助手，请基于输入提供安全、合规且可操作的建议，避免诊断结论。"},
+        {"role": "system", "content": f"""你是资深临床决策助手。当前日期是：{current_date}。请基于输入提供安全、合规且可操作的建议。
+请注意：
+1. 避免直接下达确诊结论。
+2. 如果建议就医，请明确推荐挂号的科室，格式为：[推荐科室：XXX]。{dept_prompt}
+3. 结合患者信息（如有）进行个性化建议。
+"""},
         {"role": "user", "content": json.dumps({
             "symptoms": symptoms,
             "diagnosis": diagnosis,

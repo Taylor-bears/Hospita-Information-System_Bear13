@@ -11,6 +11,7 @@ const PatientDashboard = lazy(() => import('../pages/patient/PatientDashboard'))
 const AppointmentBooking = lazy(() => import('../pages/patient/AppointmentBooking'))
 const AIConsult = lazy(() => import('../pages/patient/AIConsult'))
 const MyOrders = lazy(() => import('../pages/patient/MyOrders'))
+const PatientPrescriptions = lazy(() => import('../pages/patient/PatientPrescriptions'))
 const ProfilePage = lazy(() => import('../pages/ProfilePage'))
 
 // 医生页面
@@ -22,12 +23,14 @@ const MedicalRecordPage = lazy(() => import('../pages/doctor/MedicalRecordPage')
 // 管理员页面
 const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard'))
 const UserReview = lazy(() => import('../pages/admin/UserReview'))
+const UserManagement = lazy(() => import('../pages/admin/UserManagement'))
 // 移除不存在的管理员页面以避免构建错误
 
 // 药房页面
 const PharmacyDashboard = lazy(() => import('../pages/pharmacy/PharmacyDashboard'))
 const DrugInventory = lazy(() => import('../pages/pharmacy/DrugInventory'))
 const PriceAdjustment = lazy(() => import('../pages/pharmacy/PriceAdjustment'))
+const PrescriptionProcessing = lazy(() => import('../pages/pharmacy/PrescriptionProcessing'))
 
 // 布局组件
 const AppLayout = lazy(() => import('../components/Layout/AppLayout'))
@@ -41,7 +44,7 @@ export default function AppRouter() {
       {/* 认证路由 */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      
+
       {/* 患者路由 */}
       <Route
         path="/patient"
@@ -74,6 +77,16 @@ export default function AppRouter() {
         }
       />
       <Route
+        path="/patient/prescriptions"
+        element={
+          <ProtectedRoute allowedRoles={['patient']}>
+            <AppLayout>
+              <PatientPrescriptions />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/patient/orders"
         element={
           <ProtectedRoute allowedRoles={['patient']}>
@@ -93,7 +106,7 @@ export default function AppRouter() {
           </ProtectedRoute>
         }
       />
-      
+
       {/* 医生路由 */}
       <Route
         path="/doctor/records"
@@ -136,7 +149,7 @@ export default function AppRouter() {
         }
       />
       {/* 移除不存在的医生“患者记录”路由 */}
-      
+
       {/* 管理员路由 */}
       <Route
         path="/admin"
@@ -158,8 +171,18 @@ export default function AppRouter() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/admin/all-users"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AppLayout>
+              <UserManagement />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
       {/* 移除不存在的管理员“排班管理/账号管理”路由 */}
-      
+
       {/* 药房路由 */}
       <Route
         path="/pharmacy"
@@ -182,6 +205,16 @@ export default function AppRouter() {
         }
       />
       <Route
+        path="/pharmacy/prescriptions"
+        element={
+          <ProtectedRoute allowedRoles={['pharmacist']}>
+            <AppLayout>
+              <PrescriptionProcessing />
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/pharmacy/prices"
         element={
           <ProtectedRoute allowedRoles={['pharmacist']}>
@@ -191,7 +224,7 @@ export default function AppRouter() {
           </ProtectedRoute>
         }
       />
-      
+
       {/* 默认路由 */}
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/unauthorized" element={<UnauthorizedPage />} />

@@ -9,6 +9,7 @@
 后端
 ```powershell
 cd backend
+pip install -r requirements.txt
 python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
 ```
 前端
@@ -21,5 +22,5 @@ npm run dev
 
 ## 备注
 - 数据库文件：`backend/medical.db`，重建可参考 `backend/init_db.sql`。
-- 环境变量：`backend/.env.example` 复制为 `backend/.env`。
+- 环境变量：`backend/.env.example` 复制为 `backend/.env`。若需使用 AI 咨询功能，请配置 `OPEN_ROUTER_API_KEY`。
 - 预约/排班等接口位于 `backend/appointments/backend/routes.py`；前端 API 封装在 `frontend/src/lib/api.ts`。

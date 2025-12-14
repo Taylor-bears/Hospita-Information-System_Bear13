@@ -397,6 +397,7 @@ def doctor_appointments(
             "appointment_date": sched.date.isoformat(),
             "appointment_time": f"{str(sched.start_time)[:5]}-{str(sched.end_time)[:5]}",
             "status": appt.status.value if hasattr(appt.status, 'value') else appt.status,
+            "patient_id": patient_user.id,
             "patient_name": patient_name,
             "patient_phone": patient_user.phone,
             "created_at": appt.created_at,

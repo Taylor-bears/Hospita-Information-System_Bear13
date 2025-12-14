@@ -1,0 +1,2072 @@
+{
+    "users": [
+        {
+            "phone": "13800138000",
+            "password": "admin",
+            "role": "admin",
+            "description": "系统管理员，拥有所有权限"
+        },
+        {
+            "phone": "13800138001",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "张伟",
+                "department": "心内科",
+                "title": "主任医师",
+                "hospital": "市中心医院",
+                "license_number": "DOC20230001"
+            }
+        },
+        {
+            "phone": "13800138002",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "李明",
+                "department": "呼吸内科",
+                "title": "副主任医师",
+                "hospital": "市第一人民医院",
+                "license_number": "DOC20230002"
+            }
+        },
+        {
+            "phone": "13800138003",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "王芳",
+                "department": "儿科",
+                "title": "主治医师",
+                "hospital": "儿童医院",
+                "license_number": "DOC20230003"
+            }
+        },
+        {
+            "phone": "13800138004",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "刘强",
+                "department": "皮肤科",
+                "title": "主任医师",
+                "hospital": "皮肤专科医院",
+                "license_number": "DOC20230004"
+            }
+        },
+        {
+            "phone": "13800138005",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "陈静",
+                "department": "中医科",
+                "title": "中医主任医师",
+                "hospital": "中医院",
+                "license_number": "DOC20230005"
+            }
+        },
+        {
+            "phone": "13800138006",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "赵刚",
+                "department": "神经内科",
+                "title": "副主任医师",
+                "hospital": "市中心医院",
+                "license_number": "DOC20230006"
+            }
+        },
+        {
+            "phone": "13800138007",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "周敏",
+                "department": "消化内科",
+                "title": "主治医师",
+                "hospital": "市第一人民医院",
+                "license_number": "DOC20230007"
+            }
+        },
+        {
+            "phone": "13800138008",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "吴磊",
+                "department": "骨科",
+                "title": "主任医师",
+                "hospital": "骨科医院",
+                "license_number": "DOC20230008"
+            }
+        },
+        {
+            "phone": "13800138009",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "郑华",
+                "department": "眼科",
+                "title": "副主任医师",
+                "hospital": "眼科医院",
+                "license_number": "DOC20230009"
+            }
+        },
+        {
+            "phone": "13800138010",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "孙丽",
+                "department": "耳鼻喉科",
+                "title": "主治医师",
+                "hospital": "市第一人民医院",
+                "license_number": "DOC20230010"
+            }
+        },
+        {
+            "phone": "13800138011",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "朱涛",
+                "department": "泌尿外科",
+                "title": "主任医师",
+                "hospital": "市中心医院",
+                "license_number": "DOC20230011"
+            }
+        },
+        {
+            "phone": "13800138012",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "马宁",
+                "department": "妇产科",
+                "title": "副主任医师",
+                "hospital": "妇幼保健院",
+                "license_number": "DOC20230012"
+            }
+        },
+        {
+            "phone": "13800138013",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "胡伟",
+                "department": "内分泌科",
+                "title": "主治医师",
+                "hospital": "市第一人民医院",
+                "license_number": "DOC20230013"
+            }
+        },
+        {
+            "phone": "13800138014",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "林芳",
+                "department": "肿瘤科",
+                "title": "主任医师",
+                "hospital": "肿瘤医院",
+                "license_number": "DOC20230014"
+            }
+        },
+        {
+            "phone": "13800138015",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "何勇",
+                "department": "康复科",
+                "title": "副主任医师",
+                "hospital": "康复医院",
+                "license_number": "DOC20230015"
+            }
+        },
+        {
+            "phone": "13800138016",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "高洁",
+                "department": "急诊科",
+                "title": "主治医师",
+                "hospital": "市中心医院",
+                "license_number": "DOC20230016"
+            }
+        },
+        {
+            "phone": "13800138017",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "黄斌",
+                "department": "口腔科",
+                "title": "主任医师",
+                "hospital": "口腔医院",
+                "license_number": "DOC20230017"
+            }
+        },
+        {
+            "phone": "13800138018",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "徐静",
+                "department": "精神心理科",
+                "title": "副主任医师",
+                "hospital": "精神卫生中心",
+                "license_number": "DOC20230018"
+            }
+        },
+        {
+            "phone": "13800138019",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "谢军",
+                "department": "感染科",
+                "title": "主治医师",
+                "hospital": "传染病医院",
+                "license_number": "DOC20230019"
+            }
+        },
+        {
+            "phone": "13800138020",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "罗敏",
+                "department": "肾内科",
+                "title": "主任医师",
+                "hospital": "市第一人民医院",
+                "license_number": "DOC20230020"
+            }
+        },
+        {
+            "phone": "13800138021",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "梁超",
+                "department": "血液科",
+                "title": "副主任医师",
+                "hospital": "血液病医院",
+                "license_number": "DOC20230021"
+            }
+        },
+        {
+            "phone": "13800138022",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "宋佳",
+                "department": "风湿免疫科",
+                "title": "主治医师",
+                "hospital": "市中心医院",
+                "license_number": "DOC20230022"
+            }
+        },
+        {
+            "phone": "13800138023",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "唐峰",
+                "department": "胸外科",
+                "title": "主任医师",
+                "hospital": "胸科医院",
+                "license_number": "DOC20230023"
+            }
+        },
+        {
+            "phone": "13800138024",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "董娜",
+                "department": "整形外科",
+                "title": "副主任医师",
+                "hospital": "整形医院",
+                "license_number": "DOC20230024"
+            }
+        },
+        {
+            "phone": "13800138025",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "韩磊",
+                "department": "烧伤科",
+                "title": "主治医师",
+                "hospital": "烧伤专科医院",
+                "license_number": "DOC20230025"
+            }
+        },
+        {
+            "phone": "13800138026",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "曹阳",
+                "department": "麻醉科",
+                "title": "主任医师",
+                "hospital": "市中心医院",
+                "license_number": "DOC20230026"
+            }
+        },
+        {
+            "phone": "13800138027",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "许婷",
+                "department": "病理科",
+                "title": "副主任医师",
+                "hospital": "市第一人民医院",
+                "license_number": "DOC20230027"
+            }
+        },
+        {
+            "phone": "13800138028",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "邓超",
+                "department": "检验科",
+                "title": "主治医师",
+                "hospital": "检验中心",
+                "license_number": "DOC20230028"
+            }
+        },
+        {
+            "phone": "13800138029",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "萧红",
+                "department": "放射科",
+                "title": "主任医师",
+                "hospital": "影像中心",
+                "license_number": "DOC20230029"
+            }
+        },
+        {
+            "phone": "13800138030",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "程刚",
+                "department": "超声科",
+                "title": "副主任医师",
+                "hospital": "超声诊断中心",
+                "license_number": "DOC20230030"
+            }
+        },
+        {
+            "phone": "13800138031",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "彭伟",
+                "department": "核医学科",
+                "title": "主治医师",
+                "hospital": "核医学中心",
+                "license_number": "DOC20230031"
+            }
+        },
+        {
+            "phone": "13800138032",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "潘静",
+                "department": "老年病科",
+                "title": "主任医师",
+                "hospital": "老年医院",
+                "license_number": "DOC20230032"
+            }
+        },
+        {
+            "phone": "13800138033",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "蒋明",
+                "department": "全科医学科",
+                "title": "副主任医师",
+                "hospital": "社区卫生中心",
+                "license_number": "DOC20230033"
+            }
+        },
+        {
+            "phone": "13800138034",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "蔡琳",
+                "department": "疼痛科",
+                "title": "主治医师",
+                "hospital": "疼痛专科医院",
+                "license_number": "DOC20230034"
+            }
+        },
+        {
+            "phone": "13800138035",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "余强",
+                "department": "介入科",
+                "title": "主任医师",
+                "hospital": "介入治疗中心",
+                "license_number": "DOC20230035"
+            }
+        },
+        {
+            "phone": "13800138036",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "杜娟",
+                "department": "营养科",
+                "title": "副主任医师",
+                "hospital": "营养咨询中心",
+                "license_number": "DOC20230036"
+            }
+        },
+        {
+            "phone": "13800138037",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "苏伟",
+                "department": "高压氧科",
+                "title": "主治医师",
+                "hospital": "高压氧治疗中心",
+                "license_number": "DOC20230037"
+            }
+        },
+        {
+            "phone": "13800138038",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "魏敏",
+                "department": "中医内科",
+                "title": "主任医师",
+                "hospital": "中医院",
+                "license_number": "DOC20230038"
+            }
+        },
+        {
+            "phone": "13800138039",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "吕超",
+                "department": "中医外科",
+                "title": "副主任医师",
+                "hospital": "中医院",
+                "license_number": "DOC20230039"
+            }
+        },
+        {
+            "phone": "13800138040",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "丁芳",
+                "department": "针灸科",
+                "title": "主治医师",
+                "hospital": "针灸推拿医院",
+                "license_number": "DOC20230040"
+            }
+        },
+        {
+            "phone": "13800138041",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "沈军",
+                "department": "推拿科",
+                "title": "主任医师",
+                "hospital": "推拿康复医院",
+                "license_number": "DOC20230041"
+            }
+        },
+        {
+            "phone": "13800138042",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "姜丽",
+                "department": "中西医结合科",
+                "title": "副主任医师",
+                "hospital": "中西医结合医院",
+                "license_number": "DOC20230042"
+            }
+        },
+        {
+            "phone": "13800138043",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "范伟",
+                "department": "男科",
+                "title": "主治医师",
+                "hospital": "男科医院",
+                "license_number": "DOC20230043"
+            }
+        },
+        {
+            "phone": "13800138044",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "江静",
+                "department": "乳腺科",
+                "title": "主任医师",
+                "hospital": "乳腺专科医院",
+                "license_number": "DOC20230044"
+            }
+        },
+        {
+            "phone": "13800138045",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "田刚",
+                "department": "血管外科",
+                "title": "副主任医师",
+                "hospital": "血管外科医院",
+                "license_number": "DOC20230045"
+            }
+        },
+        {
+            "phone": "13800138046",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "康敏",
+                "department": "肝胆外科",
+                "title": "主治医师",
+                "hospital": "肝胆医院",
+                "license_number": "DOC20230046"
+            }
+        },
+        {
+            "phone": "13800138047",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "白勇",
+                "department": "肛肠科",
+                "title": "主任医师",
+                "hospital": "肛肠医院",
+                "license_number": "DOC20230047"
+            }
+        },
+        {
+            "phone": "13800138048",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "崔娜",
+                "department": "变态反应科",
+                "title": "副主任医师",
+                "hospital": "过敏反应中心",
+                "license_number": "DOC20230048"
+            }
+        },
+        {
+            "phone": "13800138049",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "毛峰",
+                "department": "职业病科",
+                "title": "主治医师",
+                "hospital": "职业病防治院",
+                "license_number": "DOC20230049"
+            }
+        },
+        {
+            "phone": "13800138050",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "秦芳",
+                "department": "睡眠医学科",
+                "title": "主任医师",
+                "hospital": "睡眠医学中心",
+                "license_number": "DOC20230050"
+            }
+        },
+        {
+            "phone": "13800138051",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "史军",
+                "department": "心内科",
+                "title": "主治医师",
+                "hospital": "心血管病医院",
+                "license_number": "DOC20230051"
+            }
+        },
+        {
+            "phone": "13800138052",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "顾婷",
+                "department": "呼吸内科",
+                "title": "副主任医师",
+                "hospital": "呼吸疾病研究所",
+                "license_number": "DOC20230052"
+            }
+        },
+        {
+            "phone": "13800138053",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "侯强",
+                "department": "儿科",
+                "title": "主任医师",
+                "hospital": "儿童医学中心",
+                "license_number": "DOC20230053"
+            }
+        },
+        {
+            "phone": "13800138054",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "邵敏",
+                "department": "皮肤科",
+                "title": "主治医师",
+                "hospital": "皮肤病防治所",
+                "license_number": "DOC20230054"
+            }
+        },
+        {
+            "phone": "13800138055",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "孟伟",
+                "department": "中医科",
+                "title": "副主任医师",
+                "hospital": "中医药大学附属医院",
+                "license_number": "DOC20230055"
+            }
+        },
+        {
+            "phone": "13800138056",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "龙芳",
+                "department": "神经外科",
+                "title": "主任医师",
+                "hospital": "神经外科医院",
+                "license_number": "DOC20230056"
+            }
+        },
+        {
+            "phone": "13800138057",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "万刚",
+                "department": "心血管外科",
+                "title": "副主任医师",
+                "hospital": "心脏中心",
+                "license_number": "DOC20230057"
+            }
+        },
+        {
+            "phone": "13800138058",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "段敏",
+                "department": "消化内科",
+                "title": "主治医师",
+                "hospital": "消化疾病医院",
+                "license_number": "DOC20230058"
+            }
+        },
+        {
+            "phone": "13800138059",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "雷勇",
+                "department": "骨科",
+                "title": "主任医师",
+                "hospital": "创伤骨科医院",
+                "license_number": "DOC20230059"
+            }
+        },
+        {
+            "phone": "13800138060",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "钱婷",
+                "department": "眼科",
+                "title": "副主任医师",
+                "hospital": "视光中心",
+                "license_number": "DOC20230060"
+            }
+        },
+        {
+            "phone": "13800138061",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "汤伟",
+                "department": "耳鼻喉科",
+                "title": "主治医师",
+                "hospital": "耳鼻喉专科医院",
+                "license_number": "DOC20230061"
+            }
+        },
+        {
+            "phone": "13800138062",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "尹静",
+                "department": "泌尿外科",
+                "title": "主任医师",
+                "hospital": "泌尿外科中心",
+                "license_number": "DOC20230062"
+            }
+        },
+        {
+            "phone": "13800138063",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "黎军",
+                "department": "妇产科",
+                "title": "副主任医师",
+                "hospital": "妇产医院",
+                "license_number": "DOC20230063"
+            }
+        },
+        {
+            "phone": "13800138064",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "易芳",
+                "department": "内分泌科",
+                "title": "主治医师",
+                "hospital": "内分泌代谢病医院",
+                "license_number": "DOC20230064"
+            }
+        },
+        {
+            "phone": "13800138065",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "武刚",
+                "department": "肿瘤科",
+                "title": "主任医师",
+                "hospital": "肿瘤防治中心",
+                "license_number": "DOC20230065"
+            }
+        },
+        {
+            "phone": "13800138066",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "戴敏",
+                "department": "康复科",
+                "title": "副主任医师",
+                "hospital": "康复医学中心",
+                "license_number": "DOC20230066"
+            }
+        },
+        {
+            "phone": "13800138067",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "贺伟",
+                "department": "急诊科",
+                "title": "主治医师",
+                "hospital": "急救中心",
+                "license_number": "DOC20230067"
+            }
+        },
+        {
+            "phone": "13800138068",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "龚静",
+                "department": "口腔科",
+                "title": "主任医师",
+                "hospital": "牙科医院",
+                "license_number": "DOC20230068"
+            }
+        },
+        {
+            "phone": "13800138069",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "文军",
+                "department": "精神心理科",
+                "title": "副主任医师",
+                "hospital": "心理咨询中心",
+                "license_number": "DOC20230069"
+            }
+        },
+        {
+            "phone": "13800138070",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "庞芳",
+                "department": "感染科",
+                "title": "主治医师",
+                "hospital": "感染性疾病科",
+                "license_number": "DOC20230070"
+            }
+        },
+        {
+            "phone": "13800138071",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "樊刚",
+                "department": "肾内科",
+                "title": "主任医师",
+                "hospital": "肾病医院",
+                "license_number": "DOC20230071"
+            }
+        },
+        {
+            "phone": "13800138072",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "兰敏",
+                "department": "血液科",
+                "title": "副主任医师",
+                "hospital": "血液中心",
+                "license_number": "DOC20230072"
+            }
+        },
+        {
+            "phone": "13800138073",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "殷伟",
+                "department": "风湿免疫科",
+                "title": "主治医师",
+                "hospital": "风湿病医院",
+                "license_number": "DOC20230073"
+            }
+        },
+        {
+            "phone": "13800138074",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "施静",
+                "department": "胸外科",
+                "title": "主任医师",
+                "hospital": "胸外科中心",
+                "license_number": "DOC20230074"
+            }
+        },
+        {
+            "phone": "13800138075",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "张勇",
+                "department": "整形外科",
+                "title": "副主任医师",
+                "hospital": "美容整形医院",
+                "license_number": "DOC20230075"
+            }
+        },
+        {
+            "phone": "13800138076",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "李婷",
+                "department": "烧伤科",
+                "title": "主治医师",
+                "hospital": "烧伤救治中心",
+                "license_number": "DOC20230076"
+            }
+        },
+        {
+            "phone": "13800138077",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "王军",
+                "department": "麻醉科",
+                "title": "主任医师",
+                "hospital": "麻醉与疼痛中心",
+                "license_number": "DOC20230077"
+            }
+        },
+        {
+            "phone": "13800138078",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "刘芳",
+                "department": "病理科",
+                "title": "副主任医师",
+                "hospital": "病理诊断中心",
+                "license_number": "DOC20230078"
+            }
+        },
+        {
+            "phone": "13800138079",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "陈伟",
+                "department": "检验科",
+                "title": "主治医师",
+                "hospital": "临床检验中心",
+                "license_number": "DOC20230079"
+            }
+        },
+        {
+            "phone": "13800138080",
+            "password": "123456",
+            "role": "doctor",
+            "profile": {
+                "name": "赵敏",
+                "department": "放射科",
+                "title": "主任医师",
+                "hospital": "放射诊断中心",
+                "license_number": "DOC20230080"
+            }
+        },
+        {
+            "phone": "13500000001",
+            "password": "123456",
+            "role": "pharmacist",
+            "description": "药房工作人员A"
+        },
+        {
+            "phone": "13500000002",
+            "password": "123456",
+            "role": "pharmacist",
+            "description": "药房工作人员B"
+        },
+        {
+            "phone": "13500000003",
+            "password": "123456",
+            "role": "pharmacist",
+            "description": "药房工作人员C"
+        },
+        {
+            "phone": "13500000004",
+            "password": "123456",
+            "role": "pharmacist",
+            "description": "药房工作人员D"
+        },
+        {
+            "phone": "13500000005",
+            "password": "123456",
+            "role": "pharmacist",
+            "description": "药房工作人员E"
+        },
+        {
+            "phone": "13700000001",
+            "password": "123456",
+            "role": "user",
+            "profile": {
+                "name": "王强",
+                "id_card": "110101199001011234",
+                "email": "wangqiang@example.com"
+            }
+        },
+        {
+            "phone": "13700000002",
+            "password": "123456",
+            "role": "user",
+            "profile": {
+                "name": "赵敏",
+                "id_card": "110101199505055678",
+                "email": "zhaomin@example.com"
+            }
+        }
+    ],
+    "medications": [
+        {
+            "name": "阿莫西林胶囊",
+            "category": "抗生素",
+            "specification": "0.25g*24粒",
+            "unit": "盒",
+            "manufacturer": "白云山制药",
+            "price": 25,
+            "stock": 500,
+            "description": "青霉素类抗生素，用于敏感菌所致的感染。"
+        },
+        {
+            "name": "头孢克肟片",
+            "category": "抗生素",
+            "specification": "0.1g*10片",
+            "unit": "盒",
+            "manufacturer": "哈药集团",
+            "price": 38,
+            "stock": 320,
+            "description": "第三代头孢菌素，用于敏感菌引起的呼吸道、泌尿道感染。"
+        },
+        {
+            "name": "左氧氟沙星片",
+            "category": "抗生素",
+            "specification": "0.5g*10片",
+            "unit": "盒",
+            "manufacturer": "浙江医药",
+            "price": 28,
+            "stock": 450,
+            "description": "喹诺酮类抗生素，用于呼吸道、泌尿道感染。"
+        },
+        {
+            "name": "阿奇霉素片",
+            "category": "抗生素",
+            "specification": "0.25g*6片",
+            "unit": "盒",
+            "manufacturer": "辉瑞制药",
+            "price": 42,
+            "stock": 280,
+            "description": "大环内酯类抗生素，用于呼吸道、皮肤软组织感染。"
+        },
+        {
+            "name": "克拉霉素片",
+            "category": "抗生素",
+            "specification": "0.25g*12片",
+            "unit": "盒",
+            "manufacturer": "雅培制药",
+            "price": 36,
+            "stock": 310,
+            "description": "大环内酯类抗生素，用于敏感菌引起的感染。"
+        },
+        {
+            "name": "复方氨酚烷胺片",
+            "category": "感冒药",
+            "specification": "12片",
+            "unit": "盒",
+            "manufacturer": "快克药业",
+            "price": 15,
+            "stock": 800,
+            "description": "缓解普通感冒及流行性感冒引起的症状。"
+        },
+        {
+            "name": "连花清瘟胶囊",
+            "category": "感冒药",
+            "specification": "0.35g*24粒",
+            "unit": "盒",
+            "manufacturer": "以岭药业",
+            "price": 28,
+            "stock": 650,
+            "description": "用于治疗流行性感冒属热毒袭肺证。"
+        },
+        {
+            "name": "板蓝根颗粒",
+            "category": "感冒药",
+            "specification": "10g*20袋",
+            "unit": "盒",
+            "manufacturer": "白云山制药",
+            "price": 18,
+            "stock": 950,
+            "description": "清热解毒，凉血利咽。用于肺胃热盛所致的咽喉肿痛。"
+        },
+        {
+            "name": "感冒灵颗粒",
+            "category": "感冒药",
+            "specification": "10g*9袋",
+            "unit": "盒",
+            "manufacturer": "999药业",
+            "price": 12,
+            "stock": 720,
+            "description": "解热镇痛。用于感冒引起的头痛、发热、鼻塞。"
+        },
+        {
+            "name": "维C银翘片",
+            "category": "感冒药",
+            "specification": "18片",
+            "unit": "盒",
+            "manufacturer": "贵州百灵",
+            "price": 9,
+            "stock": 880,
+            "description": "疏风解表，清热解毒。用于外感风热所致的流行性感冒。"
+        },
+        {
+            "name": "硝苯地平控释片",
+            "category": "心血管药",
+            "specification": "30mg*7片",
+            "unit": "盒",
+            "manufacturer": "拜耳医药",
+            "price": 32,
+            "stock": 420,
+            "description": "钙通道阻滞剂，用于高血压、心绞痛的治疗。"
+        },
+        {
+            "name": "缬沙坦胶囊",
+            "category": "心血管药",
+            "specification": "80mg*7粒",
+            "unit": "盒",
+            "manufacturer": "诺华制药",
+            "price": 35,
+            "stock": 380,
+            "description": "血管紧张素II受体拮抗剂，用于治疗高血压。"
+        },
+        {
+            "name": "阿托伐他汀钙片",
+            "category": "心血管药",
+            "specification": "20mg*7片",
+            "unit": "盒",
+            "manufacturer": "辉瑞制药",
+            "price": 68,
+            "stock": 290,
+            "description": "他汀类降脂药，用于高胆固醇血症和冠心病。"
+        },
+        {
+            "name": "单硝酸异山梨酯片",
+            "category": "心血管药",
+            "specification": "20mg*48片",
+            "unit": "盒",
+            "manufacturer": "阿斯利康",
+            "price": 45,
+            "stock": 340,
+            "description": "用于冠心病的长期治疗，预防心绞痛。"
+        },
+        {
+            "name": "美托洛尔片",
+            "category": "心血管药",
+            "specification": "25mg*20片",
+            "unit": "盒",
+            "manufacturer": "阿斯利康",
+            "price": 18,
+            "stock": 510,
+            "description": "β受体阻滞剂，用于高血压、心绞痛、心力衰竭。"
+        },
+        {
+            "name": "奥美拉唑肠溶胶囊",
+            "category": "消化系统药",
+            "specification": "20mg*14粒",
+            "unit": "盒",
+            "manufacturer": "阿斯利康",
+            "price": 42,
+            "stock": 460,
+            "description": "质子泵抑制剂，用于胃溃疡、十二指肠溃疡等。"
+        },
+        {
+            "name": "多潘立酮片",
+            "category": "消化系统药",
+            "specification": "10mg*30片",
+            "unit": "盒",
+            "manufacturer": "西安杨森",
+            "price": 22,
+            "stock": 590,
+            "description": "促进胃动力药，用于消化不良、腹胀、嗳气。"
+        },
+        {
+            "name": "蒙脱石散",
+            "category": "消化系统药",
+            "specification": "3g*10袋",
+            "unit": "盒",
+            "manufacturer": "博福-益普生",
+            "price": 25,
+            "stock": 640,
+            "description": "用于成人及儿童急、慢性腹泻。"
+        },
+        {
+            "name": "双歧杆菌三联活菌散",
+            "category": "消化系统药",
+            "specification": "1g*10袋",
+            "unit": "盒",
+            "manufacturer": "上海信谊",
+            "price": 38,
+            "stock": 410,
+            "description": "益生菌制剂，用于肠道菌群失调引起的腹泻、便秘。"
+        },
+        {
+            "name": "铝碳酸镁咀嚼片",
+            "category": "消化系统药",
+            "specification": "0.5g*20片",
+            "unit": "盒",
+            "manufacturer": "拜耳医药",
+            "price": 28,
+            "stock": 530,
+            "description": "抗酸药，用于胃痛、胃灼热、酸性嗳气、饱胀等。"
+        },
+        {
+            "name": "红霉素软膏",
+            "category": "外用药",
+            "specification": "10g",
+            "unit": "支",
+            "manufacturer": "白云山制药",
+            "price": 5,
+            "stock": 1200,
+            "description": "用于脓疱疮等化脓性皮肤病、小面积烧伤、溃疡面感染。"
+        },
+        {
+            "name": "莫匹罗星软膏",
+            "category": "外用药",
+            "specification": "5g",
+            "unit": "支",
+            "manufacturer": "中美天津史克",
+            "price": 18,
+            "stock": 850,
+            "description": "局部外用抗生素，适用于革兰阳性球菌引起的皮肤感染。"
+        },
+        {
+            "name": "酮康唑乳膏",
+            "category": "外用药",
+            "specification": "10g",
+            "unit": "支",
+            "manufacturer": "西安杨森",
+            "price": 12,
+            "stock": 920,
+            "description": "抗真菌药，用于手癣、足癣、体癣、股癣等。"
+        },
+        {
+            "name": "风油精",
+            "category": "外用药",
+            "specification": "3ml",
+            "unit": "瓶",
+            "manufacturer": "水仙药业",
+            "price": 6,
+            "stock": 1500,
+            "description": "清凉、止痛、驱风、止痒。用于蚊虫叮咬及伤风感冒引起的头痛、头晕。"
+        },
+        {
+            "name": "云南白药气雾剂",
+            "category": "外用药",
+            "specification": "85g",
+            "unit": "瓶",
+            "manufacturer": "云南白药",
+            "price": 32,
+            "stock": 680,
+            "description": "活血散瘀、消肿止痛。用于跌打损伤、瘀血肿痛。"
+        },
+        {
+            "name": "盐酸二甲双胍片",
+            "category": "内分泌药",
+            "specification": "0.5g*20片",
+            "unit": "盒",
+            "manufacturer": "中美上海施贵宝",
+            "price": 28,
+            "stock": 520,
+            "description": "双胍类降糖药，用于2型糖尿病的治疗。"
+        },
+        {
+            "name": "格列美脲片",
+            "category": "内分泌药",
+            "specification": "2mg*15片",
+            "unit": "盒",
+            "manufacturer": "赛诺菲",
+            "price": 45,
+            "stock": 380,
+            "description": "磺酰脲类降糖药，用于饮食控制、体育锻炼不能控制的2型糖尿病。"
+        },
+        {
+            "name": "胰岛素注射液",
+            "category": "内分泌药",
+            "specification": "300单位",
+            "unit": "支",
+            "manufacturer": "诺和诺德",
+            "price": 68,
+            "stock": 240,
+            "description": "用于治疗糖尿病。"
+        },
+        {
+            "name": "左甲状腺素钠片",
+            "category": "内分泌药",
+            "specification": "50μg*100片",
+            "unit": "盒",
+            "manufacturer": "默克雪兰诺",
+            "price": 32,
+            "stock": 410,
+            "description": "甲状腺激素，用于甲状腺功能减退症的替代治疗。"
+        },
+        {
+            "name": "布洛芬缓释胶囊",
+            "category": "解热镇痛药",
+            "specification": "0.3g*20粒",
+            "unit": "盒",
+            "manufacturer": "中美天津史克",
+            "price": 18,
+            "stock": 780,
+            "description": "非甾体抗炎药，用于缓解轻至中度疼痛如头痛、关节痛、牙痛等。"
+        },
+        {
+            "name": "对乙酰氨基酚片",
+            "category": "解热镇痛药",
+            "specification": "0.5g*10片",
+            "unit": "盒",
+            "manufacturer": "强生制药",
+            "price": 8,
+            "stock": 1100,
+            "description": "用于普通感冒或流行性感冒引起的发热，也用于缓解轻至中度疼痛。"
+        },
+        {
+            "name": "双氯芬酸钠肠溶片",
+            "category": "解热镇痛药",
+            "specification": "25mg*30片",
+            "unit": "盒",
+            "manufacturer": "北京诺华",
+            "price": 22,
+            "stock": 540,
+            "description": "非甾体抗炎药，用于类风湿性关节炎、骨关节炎等炎症和疼痛。"
+        },
+        {
+            "name": "塞来昔布胶囊",
+            "category": "解热镇痛药",
+            "specification": "0.2g*6粒",
+            "unit": "盒",
+            "manufacturer": "辉瑞制药",
+            "price": 55,
+            "stock": 320,
+            "description": "选择性COX-2抑制剂，用于缓解骨关节炎、类风湿关节炎的症状。"
+        },
+        {
+            "name": "氯雷他定片",
+            "category": "抗过敏药",
+            "specification": "10mg*6片",
+            "unit": "盒",
+            "manufacturer": "上海先灵葆雅",
+            "price": 15,
+            "stock": 890,
+            "description": "抗组胺药，用于缓解过敏性鼻炎和慢性荨麻疹的症状。"
+        },
+        {
+            "name": "西替利嗪片",
+            "category": "抗过敏药",
+            "specification": "10mg*10片",
+            "unit": "盒",
+            "manufacturer": "UCB Pharma",
+            "price": 18,
+            "stock": 760,
+            "description": "抗组胺药，用于季节性或常年性过敏性鼻炎、荨麻疹等。"
+        },
+        {
+            "name": "孟鲁司特钠片",
+            "category": "抗过敏药",
+            "specification": "10mg*5片",
+            "unit": "盒",
+            "manufacturer": "默沙东",
+            "price": 32,
+            "stock": 430,
+            "description": "白三烯受体拮抗剂，用于哮喘的预防和长期治疗，过敏性鼻炎。"
+        },
+        {
+            "name": "马来酸氯苯那敏片",
+            "category": "抗过敏药",
+            "specification": "4mg*100片",
+            "unit": "瓶",
+            "manufacturer": "上海信谊",
+            "price": 12,
+            "stock": 950,
+            "description": "抗组胺药，用于皮肤过敏症、过敏性鼻炎等。"
+        },
+        {
+            "name": "多索茶碱片",
+            "category": "呼吸系统药",
+            "specification": "0.2g*12片",
+            "unit": "盒",
+            "manufacturer": "黑龙江福和华星",
+            "price": 28,
+            "stock": 490,
+            "description": "用于支气管哮喘、喘息性慢性支气管炎及其他支气管痉挛引起的呼吸困难。"
+        },
+        {
+            "name": "氨溴索口服液",
+            "category": "呼吸系统药",
+            "specification": "100ml",
+            "unit": "瓶",
+            "manufacturer": "勃林格殷格翰",
+            "price": 32,
+            "stock": 550,
+            "description": "黏液溶解剂，用于急、慢性呼吸道疾病引起的痰液粘稠、咳痰困难。"
+        },
+        {
+            "name": "沙丁胺醇气雾剂",
+            "category": "呼吸系统药",
+            "specification": "200揿",
+            "unit": "瓶",
+            "manufacturer": "葛兰素史克",
+            "price": 38,
+            "stock": 370,
+            "description": "β2受体激动剂，用于缓解哮喘或慢性阻塞性肺病引起的支气管痉挛。"
+        },
+        {
+            "name": "布地奈德福莫特罗粉吸入剂",
+            "category": "呼吸系统药",
+            "specification": "160/4.5μg*60吸",
+            "unit": "支",
+            "manufacturer": "阿斯利康",
+            "price": 168,
+            "stock": 210,
+            "description": "用于哮喘的常规治疗和慢性阻塞性肺病的维持治疗。"
+        },
+        {
+            "name": "氯沙坦钾片",
+            "category": "心血管药",
+            "specification": "50mg*7片",
+            "unit": "盒",
+            "manufacturer": "默沙东",
+            "price": 42,
+            "stock": 390,
+            "description": "血管紧张素II受体拮抗剂，用于治疗原发性高血压。"
+        },
+        {
+            "name": "瑞舒伐他汀钙片",
+            "category": "心血管药",
+            "specification": "10mg*7片",
+            "unit": "盒",
+            "manufacturer": "阿斯利康",
+            "price": 58,
+            "stock": 340,
+            "description": "他汀类降脂药，用于高胆固醇血症和动脉粥样硬化的治疗。"
+        },
+        {
+            "name": "非洛地平缓释片",
+            "category": "心血管药",
+            "specification": "5mg*10片",
+            "unit": "盒",
+            "manufacturer": "阿斯利康",
+            "price": 35,
+            "stock": 410,
+            "description": "钙通道阻滞剂，用于高血压和稳定性心绞痛的治疗。"
+        },
+        {
+            "name": "螺内酯片",
+            "category": "心血管药",
+            "specification": "20mg*100片",
+            "unit": "瓶",
+            "manufacturer": "杭州民生",
+            "price": 28,
+            "stock": 520,
+            "description": "醛固酮拮抗剂，用于水肿性疾病、高血压、原发性醛固酮增多症等。"
+        },
+        {
+            "name": "呋塞米片",
+            "category": "心血管药",
+            "specification": "20mg*100片",
+            "unit": "瓶",
+            "manufacturer": "上海信谊",
+            "price": 15,
+            "stock": 670,
+            "description": "袢利尿剂，用于水肿性疾病、高血压、高钙血症等。"
+        },
+        {
+            "name": "厄贝沙坦片",
+            "category": "心血管药",
+            "specification": "150mg*7片",
+            "unit": "盒",
+            "manufacturer": "赛诺菲",
+            "price": 32,
+            "stock": 450,
+            "description": "血管紧张素II受体拮抗剂，用于原发性高血压的治疗。"
+        },
+        {
+            "name": "普萘洛尔片",
+            "category": "心血管药",
+            "specification": "10mg*100片",
+            "unit": "瓶",
+            "manufacturer": "江苏方强",
+            "price": 12,
+            "stock": 730,
+            "description": "β受体阻滞剂，用于高血压、心绞痛、心律失常等。"
+        },
+        {
+            "name": "卡托普利片",
+            "category": "心血管药",
+            "specification": "25mg*100片",
+            "unit": "瓶",
+            "manufacturer": "上海施贵宝",
+            "price": 18,
+            "stock": 610,
+            "description": "血管紧张素转换酶抑制剂，用于高血压和心力衰竭。"
+        },
+        {
+            "name": "地高辛片",
+            "category": "心血管药",
+            "specification": "0.25mg*30片",
+            "unit": "盒",
+            "manufacturer": "赛诺菲",
+            "price": 15,
+            "stock": 580,
+            "description": "强心苷类药物，用于心力衰竭和某些心律失常。"
+        },
+        {
+            "name": "华法林钠片",
+            "category": "心血管药",
+            "specification": "3mg*100片",
+            "unit": "盒",
+            "manufacturer": "齐鲁制药",
+            "price": 28,
+            "stock": 490,
+            "description": "抗凝药，用于预防和治疗血栓栓塞性疾病。"
+        },
+        {
+            "name": "青霉素V钾片",
+            "category": "抗生素",
+            "specification": "0.25g*24片",
+            "unit": "盒",
+            "manufacturer": "华北制药",
+            "price": 18,
+            "stock": 540,
+            "description": "青霉素类抗生素，用于敏感菌引起的轻中度感染。"
+        },
+        {
+            "name": "罗红霉素胶囊",
+            "category": "抗生素",
+            "specification": "0.15g*12粒",
+            "unit": "盒",
+            "manufacturer": "哈药集团",
+            "price": 22,
+            "stock": 470,
+            "description": "大环内酯类抗生素，用于敏感菌引起的呼吸道、皮肤软组织感染。"
+        },
+        {
+            "name": "克林霉素胶囊",
+            "category": "抗生素",
+            "specification": "0.15g*12粒",
+            "unit": "盒",
+            "manufacturer": "浙江海正",
+            "price": 32,
+            "stock": 390,
+            "description": "林可酰胺类抗生素，用于敏感菌引起的感染。"
+        },
+        {
+            "name": "甲硝唑片",
+            "category": "抗生素",
+            "specification": "0.2g*100片",
+            "unit": "瓶",
+            "manufacturer": "天津力生",
+            "price": 12,
+            "stock": 820,
+            "description": "硝基咪唑类抗生素，用于厌氧菌感染、滴虫病等。"
+        },
+        {
+            "name": "诺氟沙星胶囊",
+            "category": "抗生素",
+            "specification": "0.1g*24粒",
+            "unit": "盒",
+            "manufacturer": "浙江京新",
+            "price": 15,
+            "stock": 680,
+            "description": "喹诺酮类抗生素，用于敏感菌引起的泌尿道、肠道感染。"
+        },
+        {
+            "name": "复方甘草片",
+            "category": "呼吸系统药",
+            "specification": "100片",
+            "unit": "瓶",
+            "manufacturer": "北京同仁堂",
+            "price": 12,
+            "stock": 890,
+            "description": "镇咳祛痰药，用于一般性咳嗽及上呼吸道感染引起的咳嗽。"
+        },
+        {
+            "name": "羧甲司坦口服液",
+            "category": "呼吸系统药",
+            "specification": "10ml*10支",
+            "unit": "盒",
+            "manufacturer": "广州白云山",
+            "price": 28,
+            "stock": 510,
+            "description": "黏液调节剂，用于慢性支气管炎、支气管哮喘等引起的痰液粘稠。"
+        },
+        {
+            "name": "乙酰半胱氨酸泡腾片",
+            "category": "呼吸系统药",
+            "specification": "0.6g*4片",
+            "unit": "盒",
+            "manufacturer": "赞邦制药",
+            "price": 42,
+            "stock": 380,
+            "description": "黏液溶解剂，用于浓稠痰黏液过多的呼吸道疾病。"
+        },
+        {
+            "name": "茶碱缓释片",
+            "category": "呼吸系统药",
+            "specification": "0.1g*24片",
+            "unit": "盒",
+            "manufacturer": "阿斯利康",
+            "price": 32,
+            "stock": 450,
+            "description": "用于缓解和预防成人和12岁以上儿童的支气管哮喘症状。"
+        },
+        {
+            "name": "异丙托溴铵气雾剂",
+            "category": "呼吸系统药",
+            "specification": "20μg*200揿",
+            "unit": "瓶",
+            "manufacturer": "勃林格殷格翰",
+            "price": 45,
+            "stock": 330,
+            "description": "抗胆碱能药物，用于慢性阻塞性肺病的维持治疗。"
+        },
+        {
+            "name": "兰索拉唑肠溶片",
+            "category": "消化系统药",
+            "specification": "15mg*14片",
+            "unit": "盒",
+            "manufacturer": "武田药品",
+            "price": 48,
+            "stock": 410,
+            "description": "质子泵抑制剂，用于胃溃疡、十二指肠溃疡、反流性食管炎等。"
+        },
+        {
+            "name": "雷贝拉唑钠肠溶片",
+            "category": "消化系统药",
+            "specification": "10mg*7片",
+            "unit": "盒",
+            "manufacturer": "卫材药业",
+            "price": 52,
+            "stock": 370,
+            "description": "质子泵抑制剂，用于胃溃疡、十二指肠溃疡、胃食管反流病。"
+        },
+        {
+            "name": "枸橼酸铋钾颗粒",
+            "category": "消化系统药",
+            "specification": "1.2g*28袋",
+            "unit": "盒",
+            "manufacturer": "丽珠集团",
+            "price": 38,
+            "stock": 490,
+            "description": "胃黏膜保护剂，用于胃溃疡、十二指肠溃疡、慢性胃炎。"
+        },
+        {
+            "name": "西咪替丁片",
+            "category": "消化系统药",
+            "specification": "0.2g*100片",
+            "unit": "瓶",
+            "manufacturer": "天津力生",
+            "price": 15,
+            "stock": 720,
+            "description": "H2受体拮抗剂，用于胃溃疡、十二指肠溃疡、反流性食管炎等。"
+        },
+        {
+            "name": "法莫替丁片",
+            "category": "消化系统药",
+            "specification": "20mg*30片",
+            "unit": "盒",
+            "manufacturer": "山之内制药",
+            "price": 18,
+            "stock": 650,
+            "description": "H2受体拮抗剂，用于消化性溃疡、急性胃黏膜病变等。"
+        },
+        {
+            "name": "乳果糖口服溶液",
+            "category": "消化系统药",
+            "specification": "15ml*6袋",
+            "unit": "盒",
+            "manufacturer": "Abbott",
+            "price": 42,
+            "stock": 430,
+            "description": "渗透性泻药，用于慢性或习惯性便秘。"
+        },
+        {
+            "name": "开塞露",
+            "category": "消化系统药",
+            "specification": "20ml*2支",
+            "unit": "盒",
+            "manufacturer": "上海运佳黄浦",
+            "price": 6,
+            "stock": 1200,
+            "description": "用于便秘的临时治疗。"
+        },
+        {
+            "name": "盐酸小檗碱片",
+            "category": "消化系统药",
+            "specification": "0.1g*100片",
+            "unit": "瓶",
+            "manufacturer": "天津力生",
+            "price": 12,
+            "stock": 850,
+            "description": "用于肠道感染，如胃肠炎。"
+        },
+        {
+            "name": "复方消化酶胶囊",
+            "category": "消化系统药",
+            "specification": "20粒",
+            "unit": "盒",
+            "manufacturer": "韩国韩林",
+            "price": 32,
+            "stock": 520,
+            "description": "助消化药，用于食欲缺乏、消化不良。"
+        },
+        {
+            "name": "胰酶肠溶胶囊",
+            "category": "消化系统药",
+            "specification": "0.15g*20粒",
+            "unit": "盒",
+            "manufacturer": "雅培制药",
+            "price": 58,
+            "stock": 310,
+            "description": "助消化药，用于消化不良、胰腺疾病引起的消化障碍。"
+        },
+        {
+            "name": "炉甘石洗剂",
+            "category": "外用药",
+            "specification": "100ml",
+            "unit": "瓶",
+            "manufacturer": "上海运佳黄浦",
+            "price": 8,
+            "stock": 1100,
+            "description": "用于急性瘙痒性皮肤病，如荨麻疹和痱子。"
+        },
+        {
+            "name": "复方醋酸地塞米松乳膏",
+            "category": "外用药",
+            "specification": "10g",
+            "unit": "支",
+            "manufacturer": "三九医药",
+            "price": 10,
+            "stock": 950,
+            "description": "肾上腺皮质激素类药，用于局限性瘙痒症、神经性皮炎等。"
+        },
+        {
+            "name": "咪康唑乳膏",
+            "category": "外用药",
+            "specification": "15g",
+            "unit": "支",
+            "manufacturer": "西安杨森",
+            "price": 15,
+            "stock": 820,
+            "description": "抗真菌药，用于体癣、股癣、手癣、足癣等。"
+        },
+        {
+            "name": "联苯苄唑乳膏",
+            "category": "外用药",
+            "specification": "10g",
+            "unit": "支",
+            "manufacturer": "拜耳医药",
+            "price": 22,
+            "stock": 690,
+            "description": "抗真菌药，用于皮肤真菌感染。"
+        },
+        {
+            "name": "夫西地酸乳膏",
+            "category": "外用药",
+            "specification": "5g",
+            "unit": "支",
+            "manufacturer": "丹麦利奥制药",
+            "price": 38,
+            "stock": 540,
+            "description": "抗生素类药，用于由葡萄球菌、链球菌等敏感菌引起的皮肤感染。"
+        },
+        {
+            "name": "过氧苯甲酰凝胶",
+            "category": "外用药",
+            "specification": "15g",
+            "unit": "支",
+            "manufacturer": "高德美",
+            "price": 42,
+            "stock": 470,
+            "description": "用于寻常痤疮的治疗。"
+        },
+        {
+            "name": "阿达帕林凝胶",
+            "category": "外用药",
+            "specification": "15g",
+            "unit": "支",
+            "manufacturer": "高德美",
+            "price": 55,
+            "stock": 390,
+            "description": "维A酸类药物，用于寻常痤疮的治疗。"
+        },
+        {
+            "name": "维A酸乳膏",
+            "category": "外用药",
+            "specification": "15g",
+            "unit": "支",
+            "manufacturer": "重庆华邦",
+            "price": 18,
+            "stock": 730,
+            "description": "用于寻常痤疮、扁平苔疣、黏膜白斑等。"
+        },
+        {
+            "name": "尿素乳膏",
+            "category": "外用药",
+            "specification": "40g",
+            "unit": "支",
+            "manufacturer": "上海运佳黄浦",
+            "price": 12,
+            "stock": 880,
+            "description": "用于手足皲裂、鱼鳞病、皮肤干燥等。"
+        },
+        {
+            "name": "水杨酸软膏",
+            "category": "外用药",
+            "specification": "20g",
+            "unit": "支",
+            "manufacturer": "上海运佳黄浦",
+            "price": 8,
+            "stock": 1020,
+            "description": "用于头癣、足癣及局部角质增生。"
+        },
+        {
+            "name": "碘伏",
+            "category": "外用药",
+            "specification": "100ml",
+            "unit": "瓶",
+            "manufacturer": "上海利康",
+            "price": 9,
+            "stock": 1250,
+            "description": "消毒防腐剂，用于皮肤、黏膜的消毒。"
+        },
+        {
+            "name": "酒精",
+            "category": "外用药",
+            "specification": "100ml",
+            "unit": "瓶",
+            "manufacturer": "稳健医疗",
+            "price": 5,
+            "stock": 1800,
+            "description": "75%乙醇，用于皮肤消毒。"
+        },
+        {
+            "name": "双氧水",
+            "category": "外用药",
+            "specification": "100ml",
+            "unit": "瓶",
+            "manufacturer": "稳健医疗",
+            "price": 6,
+            "stock": 1500,
+            "description": "3%过氧化氢溶液，用于伤口消毒。"
+        },
+        {
+            "name": "创可贴",
+            "category": "外用药",
+            "specification": "100片",
+            "unit": "盒",
+            "manufacturer": "云南白药",
+            "price": 25,
+            "stock": 920,
+            "description": "用于小创伤、擦伤等患处。"
+        },
+        {
+            "name": "医用棉签",
+            "category": "外用药",
+            "specification": "100支",
+            "unit": "包",
+            "manufacturer": "稳健医疗",
+            "price": 8,
+            "stock": 1600,
+            "description": "用于清洁、消毒、涂抹药液等。"
+        },
+        {
+            "name": "医用纱布",
+            "category": "外用药",
+            "specification": "10片",
+            "unit": "包",
+            "manufacturer": "稳健医疗",
+            "price": 12,
+            "stock": 1100,
+            "description": "用于伤口包扎、保护等。"
+        },
+        {
+            "name": "医用胶带",
+            "category": "外用药",
+            "specification": "1.25cm*10m",
+            "unit": "卷",
+            "manufacturer": "稳健医疗",
+            "price": 6,
+            "stock": 1350,
+            "description": "用于固定敷料、导管等。"
+        },
+        {
+            "name": "盐酸氟桂利嗪胶囊",
+            "category": "神经系统药",
+            "specification": "5mg*20粒",
+            "unit": "盒",
+            "manufacturer": "西安杨森",
+            "price": 28,
+            "stock": 510,
+            "description": "钙通道阻滞剂，用于偏头痛的预防和前庭性眩晕的治疗。"
+        },
+        {
+            "name": "尼莫地平片",
+            "category": "神经系统药",
+            "specification": "30mg*20片",
+            "unit": "盒",
+            "manufacturer": "拜耳医药",
+            "price": 32,
+            "stock": 460,
+            "description": "钙通道阻滞剂，用于缺血性脑血管病、偏头痛等。"
+        },
+        {
+            "name": "甲钴胺片",
+            "category": "神经系统药",
+            "specification": "0.5mg*20片",
+            "unit": "盒",
+            "manufacturer": "卫材药业",
+            "price": 38,
+            "stock": 420,
+            "description": "维生素B12衍生物，用于周围神经病变。"
+        },
+        {
+            "name": "维生素B1片",
+            "category": "维生素",
+            "specification": "10mg*100片",
+            "unit": "瓶",
+            "manufacturer": "天津力生",
+            "price": 8,
+            "stock": 1400,
+            "description": "用于维生素B1缺乏的预防和治疗。"
+        },
+        {
+            "name": "维生素C片",
+            "category": "维生素",
+            "specification": "0.1g*100片",
+            "unit": "瓶",
+            "manufacturer": "天津力生",
+            "price": 9,
+            "stock": 1350,
+            "description": "用于预防和治疗坏血病，增强机体抵抗力。"
+        },
+        {
+            "name": "维生素E软胶囊",
+            "category": "维生素",
+            "specification": "0.1g*60粒",
+            "unit": "瓶",
+            "manufacturer": "浙江医药",
+            "price": 28,
+            "stock": 680,
+            "description": "用于心、脑血管疾病及习惯性流产、不孕症的辅助治疗。"
+        },
+        {
+            "name": "葡萄糖酸钙口服液",
+            "category": "矿物质补充剂",
+            "specification": "10ml*12支",
+            "unit": "盒",
+            "manufacturer": "哈药集团",
+            "price": 22,
+            "stock": 750,
+            "description": "用于预防和治疗钙缺乏症。"
+        },
+        {
+            "name": "硫酸亚铁片",
+            "category": "矿物质补充剂",
+            "specification": "0.3g*100片",
+            "unit": "瓶",
+            "manufacturer": "天津力生",
+            "price": 12,
+            "stock": 890,
+            "description": "用于缺铁性贫血。"
+        },
+        {
+            "name": "叶酸片",
+            "category": "维生素",
+            "specification": "5mg*100片",
+            "unit": "瓶",
+            "manufacturer": "天津力生",
+            "price": 15,
+            "stock": 940,
+            "description": "用于各种原因引起的叶酸缺乏及叶酸缺乏所致的巨幼红细胞性贫血。"
+        },
+        {
+            "name": "复合维生素B片",
+            "category": "维生素",
+            "specification": "100片",
+            "unit": "瓶",
+            "manufacturer": "天津力生",
+            "price": 12,
+            "stock": 1100,
+            "description": "用于预防和治疗B族维生素缺乏所致的营养不良、厌食等。"
+        },
+        {
+            "name": "碳酸钙D3片",
+            "category": "矿物质补充剂",
+            "specification": "600mg*30片",
+            "unit": "盒",
+            "manufacturer": "惠氏制药",
+            "price": 45,
+            "stock": 520,
+            "description": "用于妊娠、哺乳期妇女、更年期妇女、老年人等的钙补充剂。"
+        },
+        {
+            "name": "多维元素片",
+            "category": "维生素",
+            "specification": "30片",
+            "unit": "盒",
+            "manufacturer": "惠氏制药",
+            "price": 68,
+            "stock": 410,
+            "description": "用于预防和治疗因维生素与矿物质缺乏所引起的各种疾病。"
+        },
+        {
+            "name": "辅酶Q10胶囊",
+            "category": "心血管辅助药",
+            "specification": "10mg*30粒",
+            "unit": "盒",
+            "manufacturer": "卫材药业",
+            "price": 42,
+            "stock": 480,
+            "description": "用于心血管疾病的辅助治疗。"
+        },
+        {
+            "name": "谷维素片",
+            "category": "神经系统药",
+            "specification": "10mg*100片",
+            "unit": "瓶",
+            "manufacturer": "浙江医药",
+            "price": 15,
+            "stock": 820,
+            "description": "用于神经官能症、经前期紧张综合征、更年期综合征的镇静助眠。"
+        },
+        {
+            "name": "褪黑素片",
+            "category": "神经系统药",
+            "specification": "3mg*60片",
+            "unit": "瓶",
+            "manufacturer": "汤臣倍健",
+            "price": 58,
+            "stock": 390,
+            "description": "用于改善睡眠。"
+        },
+        {
+            "name": "氯硝西泮片",
+            "category": "神经系统药",
+            "specification": "2mg*100片",
+            "unit": "瓶",
+            "manufacturer": "恩华药业",
+            "price": 32,
+            "stock": 450,
+            "description": "苯二氮䓬类药物，用于癫痫和惊厥、焦虑状态和失眠。"
+        },
+        {
+            "name": "艾司唑仑片",
+            "category": "神经系统药",
+            "specification": "1mg*20片",
+            "unit": "盒",
+            "manufacturer": "华中药业",
+            "price": 15,
+            "stock": 670,
+            "description": "苯二氮䓬类药物，用于抗焦虑、失眠、癫痫等。"
+        }
+    ]
+}

@@ -1,12 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from pydantic import BaseModel
 from typing import List, Optional
+from passlib.context import CryptContext
 
 from backend.database import get_db
-from backend import models
+from backend import models, schemas
 
 router = APIRouter(prefix="/api/admin", tags=["Admin"])
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def get_password_hash(password):
+    return pwd_context.hash(password)
 
 
 @router.get("/users")
@@ -26,21 +33,103 @@ def users(db: Session = Depends(get_db)):
     return result
 
 
+@router.post("/users", response_model=schemas.UserResponse)
+def add_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    """管理员添加用户（包括管理员、医生、普通用户）"""
+    db_user = db.query(models.User).filter(models.User.phone == user.phone).first()
+    if db_user:
+        raise HTTPException(status_code=400, detail="该手机号已被注册")
+
+    hashed_password = get_password_hash(user.password)
+    new_user = models.User(
+        phone=user.phone,
+        password=hashed_password,
+        role=user.role,
+        status=models.UserStatus.active  # 管理员添加的用户直接激活
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    
+    # 审计日志
+    db.add(models.AdminAudit(action="add_user", target_type="user", target_id=new_user.id, info=f"role={user.role}"))
+    db.commit()
+    
+    return new_user
+
+
+@router.get("/doctors")
+def get_doctors(db: Session = Depends(get_db)):
+    """获取所有已审核通过的医生"""
+    doctors = db.query(models.User).filter(
+        models.User.role == models.UserRole.doctor,
+        models.User.status == models.UserStatus.active
+    ).all()
+    # 简单返回，如果需要详细信息可以关联 DoctorProfile
+    result = []
+    for d in doctors:
+        profile = db.query(models.DoctorProfile).filter(models.DoctorProfile.user_id == d.id).first()
+        result.append({
+            "id": d.id,
+            "phone": d.phone,
+            "name": getattr(profile, "name", "未完善信息"),
+            "department": getattr(profile, "department", ""),
+            "title": getattr(profile, "title", "")
+        })
+    return result
+
+
+@router.get("/admins")
+def get_admins(db: Session = Depends(get_db)):
+    """获取所有管理员"""
+    admins = db.query(models.User).filter(models.User.role == models.UserRole.admin).all()
+    return [{"id": u.id, "phone": u.phone, "created_at": str(u.created_at)} for u in admins]
+
+
+@router.get("/pending-doctors-count")
+def get_pending_doctors_count(db: Session = Depends(get_db)):
+    """获取待审核医生数量"""
+    count = db.query(models.User).filter(
+        models.User.role == models.UserRole.doctor,
+        models.User.status == models.UserStatus.pending
+    ).count()
+    return {"count": count}
+
+
 @router.get("/stats")
 def stats(db: Session = Depends(get_db)):
     total_users = db.query(models.User).count()
-    total_doctors = db.query(models.User).filter(models.User.role == models.UserRole.doctor).count()
+    pending_reviews = db.query(models.User).filter(models.User.status == models.UserStatus.pending).count()
+    
     total_appointments = db.query(models.Appointment).count()
-    pending_doctors = db.query(models.User).filter(models.User.role == models.UserRole.doctor, models.User.status == models.UserStatus.pending).count()
-    active_appointments = db.query(models.Appointment).filter(models.Appointment.status == models.AppointmentStatus.confirmed).count()
-    completed_appointments = db.query(models.Appointment).filter(models.Appointment.status == models.AppointmentStatus.cancelled).count()
+    pending_appointments = db.query(models.Appointment).filter(models.Appointment.status == models.AppointmentStatus.pending).count()
+    
+    total_prescriptions = db.query(models.Prescription).count()
+    
+    # Calculate total revenue from paid/dispensed prescriptions
+    # Assuming total_price is in cents
+    revenue_query = db.query(func.sum(models.Prescription.total_price)).filter(
+        models.Prescription.status.in_([models.PrescriptionStatus.paid, models.PrescriptionStatus.dispensed])
+    ).scalar()
+    total_revenue = (revenue_query or 0) # Removed / 100.0 as per user request
+
+    # Role counts
+    total_patients = db.query(models.User).filter(models.User.role == models.UserRole.user).count()
+    total_doctors = db.query(models.User).filter(models.User.role == models.UserRole.doctor).count()
+    total_pharmacists = db.query(models.User).filter(models.User.role == models.UserRole.pharmacist).count()
+    total_admins = db.query(models.User).filter(models.User.role == models.UserRole.admin).count()
+
     return {
         "total_users": total_users,
-        "total_doctors": total_doctors,
+        "pending_reviews": pending_reviews,
         "total_appointments": total_appointments,
-        "pending_doctors": pending_doctors,
-        "active_appointments": active_appointments,
-        "completed_appointments": completed_appointments,
+        "pending_appointments": pending_appointments,
+        "total_prescriptions": total_prescriptions,
+        "total_revenue": total_revenue,
+        "total_patients": total_patients,
+        "total_doctors": total_doctors,
+        "total_pharmacists": total_pharmacists,
+        "total_admins": total_admins
     }
 
 
@@ -217,9 +306,15 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
 class MedicationBody(BaseModel):
     name: str
     category: str
+    specification: Optional[str] = None
+    unit: Optional[str] = None
+    manufacturer: Optional[str] = None
     stock: int
+    min_stock: int = 10
+    max_stock: int = 1000
     price: int
     status: models.MedicationStatus = models.MedicationStatus.active
+    description: Optional[str] = None
 
 
 @router.get("/medications")
@@ -227,12 +322,32 @@ def meds(db: Session = Depends(get_db)):
     return db.query(models.Medication).all()
 
 
+@router.get("/medications/{med_id}")
+def get_med(med_id: int, db: Session = Depends(get_db)):
+    m = db.query(models.Medication).filter(models.Medication.id == med_id).first()
+    if not m:
+        raise HTTPException(status_code=404, detail="药品不存在")
+    return m
+
+
 @router.post("/medications")
 def add_med(body: MedicationBody, db: Session = Depends(get_db)):
     exists = db.query(models.Medication).filter(models.Medication.name == body.name).first()
     if exists:
         raise HTTPException(status_code=400, detail="药品已存在")
-    m = models.Medication(name=body.name, category=body.category, stock=body.stock, price=body.price, status=body.status)
+    m = models.Medication(
+        name=body.name, 
+        category=body.category, 
+        specification=body.specification,
+        unit=body.unit,
+        manufacturer=body.manufacturer,
+        stock=body.stock, 
+        min_stock=body.min_stock,
+        max_stock=body.max_stock,
+        price=body.price, 
+        status=body.status,
+        description=body.description
+    )
     db.add(m)
     db.commit()
     db.refresh(m)
@@ -248,9 +363,15 @@ def update_med(med_id: int, body: MedicationBody, db: Session = Depends(get_db))
         raise HTTPException(status_code=404, detail="药品不存在")
     m.name = body.name
     m.category = body.category
+    m.specification = body.specification
+    m.unit = body.unit
+    m.manufacturer = body.manufacturer
     m.stock = body.stock
+    m.min_stock = body.min_stock
+    m.max_stock = body.max_stock
     m.price = body.price
     m.status = body.status
+    m.description = body.description
     db.commit()
     db.refresh(m)
     db.add(models.AdminAudit(action="update_medication", target_type="medication", target_id=m.id, info=m.name))
@@ -268,4 +389,123 @@ def delete_med(med_id: int, db: Session = Depends(get_db)):
     db.add(models.AdminAudit(action="delete_medication", target_type="medication", target_id=med_id, info=m.name))
     db.commit()
     return {"message": "已删除"}
+
+
+# ========== 用户管理（全量） ==========
+
+@router.get("/all-users")
+def get_all_users(
+    role: Optional[str] = None,
+    keyword: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(models.User)
+    if role and role != "all":
+        query = query.filter(models.User.role == role)
+    
+    if keyword:
+        # 简单模糊搜索：手机号
+        query = query.filter(models.User.phone.contains(keyword))
+    
+    users = query.order_by(models.User.created_at.desc()).all()
+    
+    result = []
+    for u in users:
+        name = "未命名"
+        if u.role == models.UserRole.user:
+            p = db.query(models.PatientProfile).filter(models.PatientProfile.user_id == u.id).first()
+            if p and p.name: name = p.name
+        elif u.role == models.UserRole.doctor:
+            p = db.query(models.DoctorProfile).filter(models.DoctorProfile.user_id == u.id).first()
+            if p and p.name: name = p.name
+        
+        result.append({
+            "id": u.id,
+            "phone": u.phone,
+            "role": u.role,
+            "name": name,
+            "status": u.status,
+            "created_at": u.created_at
+        })
+    return result
+
+
+@router.get("/users/{user_id}/details")
+def get_user_details(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="用户不存在")
+    
+    base_info = {
+        "id": user.id,
+        "phone": user.phone,
+        "role": user.role,
+        "status": user.status,
+        "created_at": user.created_at
+    }
+    
+    details = {}
+    
+    if user.role == models.UserRole.user:
+        profile = db.query(models.PatientProfile).filter(models.PatientProfile.user_id == user.id).first()
+        if profile:
+            details["profile"] = {
+                "name": profile.name,
+                "id_card": profile.id_card,
+                "email": profile.email
+            }
+        
+        # 挂号记录
+        appointments = db.query(models.Appointment).filter(models.Appointment.patient_id == user.id).order_by(models.Appointment.created_at.desc()).all()
+        details["appointments"] = []
+        for app in appointments:
+            doc_profile = db.query(models.DoctorProfile).filter(models.DoctorProfile.user_id == app.doctor_id).first()
+            doc_name = doc_profile.name if doc_profile else "未知医生"
+            details["appointments"].append({
+                "id": app.id,
+                "date": str(app.created_at),
+                "doctor_name": doc_name,
+                "status": app.status
+            })
+            
+        # 处方记录
+        prescriptions = db.query(models.Prescription).filter(models.Prescription.patient_id == user.id).order_by(models.Prescription.created_at.desc()).all()
+        details["prescriptions"] = []
+        for pre in prescriptions:
+            details["prescriptions"].append({
+                "id": pre.id,
+                "date": str(pre.created_at),
+                "status": pre.status,
+                "total_price": pre.total_price
+            })
+
+    elif user.role == models.UserRole.doctor:
+        profile = db.query(models.DoctorProfile).filter(models.DoctorProfile.user_id == user.id).first()
+        if profile:
+            details["profile"] = {
+                "name": profile.name,
+                "department": profile.department,
+                "title": profile.title,
+                "hospital": profile.hospital,
+                "license_number": profile.license_number,
+                "email": profile.email
+            }
+        
+        # 接诊记录（作为医生）
+        appointments = db.query(models.Appointment).filter(models.Appointment.doctor_id == user.id).order_by(models.Appointment.created_at.desc()).all()
+        details["appointments"] = []
+        for app in appointments:
+            pat_profile = db.query(models.PatientProfile).filter(models.PatientProfile.user_id == app.patient_id).first()
+            pat_name = pat_profile.name if pat_profile else "未知患者"
+            details["appointments"].append({
+                "id": app.id,
+                "date": str(app.created_at),
+                "patient_name": pat_name,
+                "status": app.status
+            })
+
+    return {
+        "base": base_info,
+        "details": details
+    }
 

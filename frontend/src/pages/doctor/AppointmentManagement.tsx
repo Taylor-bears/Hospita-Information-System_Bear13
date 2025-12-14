@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { Table, Tag, Button, Modal, Form, Input, Select, DatePicker, Space, message, Card, Row, Col, Statistic, InputNumber } from 'antd'
-import { CheckOutlined, CloseOutlined, EyeOutlined, CalendarOutlined, UserOutlined, ClockCircleOutlined } from '@ant-design/icons'
+import { CheckOutlined, CloseOutlined, EyeOutlined, CalendarOutlined, UserOutlined, ClockCircleOutlined, MedicineBoxOutlined } from '@ant-design/icons'
 import api from '../../lib/api'
 import { useAuthStore } from '../../stores/authStore'
+import { useNavigate } from 'react-router-dom'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 
@@ -14,6 +15,7 @@ const { Option } = Select
 
 interface Appointment {
   id: string
+  patient_id: number
   patient_name: string
   patient_phone: string
   appointment_date: string
@@ -35,6 +37,7 @@ interface Patient {
 }
 
 const AppointmentManagement: React.FC = () => {
+  const navigate = useNavigate()
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [loading, setLoading] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
@@ -135,7 +138,7 @@ const AppointmentManagement: React.FC = () => {
 
   const filteredAppointments = appointments.filter(appointment => {
     const matchesSearch = appointment.patient_name.toLowerCase().includes(searchText.toLowerCase()) ||
-                         appointment.patient_phone.includes(searchText)
+      appointment.patient_phone.includes(searchText)
     return matchesSearch
   })
 
@@ -202,6 +205,22 @@ const AppointmentManagement: React.FC = () => {
             onClick={() => handleViewDetails(record)}
           >
             查看详情
+          </Button>
+          <Button
+            type="primary"
+            size="small"
+            icon={<MedicineBoxOutlined />}
+            onClick={() => {
+              navigate('/doctor/prescriptions', {
+                state: {
+                  patientId: record.patient_id,
+                  patientName: record.patient_name,
+                  appointmentId: record.id
+                }
+              })
+            }}
+          >
+            开方
           </Button>
           {record.status === 'scheduled' && (
             <Button
@@ -365,9 +384,9 @@ const AppointmentManagement: React.FC = () => {
         <Form form={scheduleForm} layout="inline" onFinish={createOrUpdateAmPm}>
           <Form.Item label="日期" name="workDate" rules={[{ required: true, message: '请选择日期' }]}
           >
-            <DatePicker 
+            <DatePicker
               disabledDate={disabledScheduleDate}
-              onChange={(d) => { if (d) refreshDaySlots(d.format('YYYY-MM-DD')) }} 
+              onChange={(d) => { if (d) refreshDaySlots(d.format('YYYY-MM-DD')) }}
             />
           </Form.Item>
           <Form.Item label="上午排班" name="amCapacity">
@@ -379,7 +398,7 @@ const AppointmentManagement: React.FC = () => {
           <Form.Item>
             <Button type="primary" htmlType="submit">保存</Button>
           </Form.Item>
-      </Form>
+        </Form>
       </Card>
 
       {/* 当日容量概览 */}

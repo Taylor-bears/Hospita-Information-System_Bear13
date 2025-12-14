@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import ErrorBoundary from '../../components/ErrorBoundary'
 import { Card, Row, Col, Statistic, Table, Tag, Button, Space, message, DatePicker } from 'antd'
-import { 
-  UserOutlined, 
-  UserAddOutlined, 
-  MedicineBoxOutlined, 
+import {
+  UserOutlined,
+  UserAddOutlined,
+  MedicineBoxOutlined,
   CalendarOutlined,
   ClockCircleOutlined,
   CheckCircleOutlined,
@@ -74,9 +74,9 @@ const AdminDashboard: React.FC = () => {
       const s = res.data || {}
       setStats({
         totalUsers: Number(s.total_users || 0),
-        pendingApprovals: Number(s.pending_doctors || 0),
+        pendingApprovals: Number(s.pending_reviews || 0),
         totalAppointments: Number(s.total_appointments || 0),
-        pendingAppointments: Number(s.active_appointments || 0),
+        pendingAppointments: Number(s.pending_appointments || 0),
         totalPrescriptions: Number(s.total_prescriptions || 0),
         totalRevenue: Number(s.total_revenue || 0),
       })
@@ -132,12 +132,11 @@ const AdminDashboard: React.FC = () => {
 
   const fetchRoleDistribution = async () => {
     try {
-      const usersRes = await api.get('/api/admin/users')
       const statsRes = await api.get('/api/admin/stats')
-      const userCount = Array.isArray(usersRes.data) ? usersRes.data.filter((u: any) => u.role === 'patient').length : 0
+      const userCount = Number(statsRes.data?.total_patients || 0)
       const docCount = Number(statsRes.data?.total_doctors || 0)
       const pharmacistCount = Number(statsRes.data?.total_pharmacists || 0)
-      const adminCount = Number(statsRes.data?.total_admins || 1)
+      const adminCount = Number(statsRes.data?.total_admins || 0)
       const total = userCount + docCount + pharmacistCount + adminCount
       const distribution: RoleDistribution[] = [
         { role: '患者', count: userCount, percentage: total ? Math.round((userCount / total) * 100) : 0 },
@@ -202,133 +201,133 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <ErrorBoundary>
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">管理员控制台</h1>
-        <p className="text-gray-600">系统概览和管理功能</p>
-      </div>
+      <div className="p-6">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold mb-2">管理员控制台</h1>
+          <p className="text-gray-600">系统概览和管理功能</p>
+        </div>
 
-      {/* 统计卡片 */}
-      <Row gutter={16} className="mb-6">
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="总用户数"
-              value={stats.totalUsers}
-              prefix={<TeamOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="待审核用户"
-              value={stats.pendingApprovals}
-              valueStyle={{ color: '#fa8c16' }}
-              prefix={<ClockCircleOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="待处理预约"
-              value={stats.pendingAppointments}
-              valueStyle={{ color: '#1890ff' }}
-              prefix={<CalendarOutlined />}
-            />
-          </Card>
-        </Col>
-      </Row>
-
-      <Row gutter={16} className="mb-6">
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="总预约数"
-              value={stats.totalAppointments}
-              prefix={<CalendarOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="总处方数"
-              value={stats.totalPrescriptions}
-              prefix={<FileTextOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="总收入"
-              value={stats.totalRevenue}
-              precision={2}
-              valueStyle={{ color: '#52c41a' }}
-              prefix="¥"
-            />
-          </Card>
-        </Col>
-      </Row>
-
-      {/* 图表区域 */}
-      <Row gutter={16} className="mb-6">
-        <Col span={16}>
-          <Card 
-            title="业务趋势" 
-            extra={
-              <RangePicker
-                value={dateRange}
-                onChange={setDateRange}
-                style={{ width: 240 }}
+        {/* 统计卡片 */}
+        <Row gutter={16} className="mb-6">
+          <Col span={8}>
+            <Card>
+              <Statistic
+                title="总用户数"
+                value={stats.totalUsers}
+                prefix={<TeamOutlined />}
               />
-            }
-          >
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 3fr', gap: 8 }}>
-              {chartData.map(d => (
-                <React.Fragment key={d.date}>
-                  <div style={{ color: '#666' }}>{d.date}</div>
-                  <div>
-                    <div style={{ height: 8, background: '#e6f4ff' }}>
-                      <div style={{ width: `${Math.min(100, d.appointments * 10)}%`, height: 8, background: '#1890ff' }} />
-                    </div>
-                    <div style={{ height: 8, background: '#f6ffed', marginTop: 6 }}>
-                      <div style={{ width: `${Math.min(100, d.prescriptions * 10)}%`, height: 8, background: '#52c41a' }} />
-                    </div>
-                  </div>
-                </React.Fragment>
-              ))}
-            </div>
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card title="用户角色分布">
-            <div style={{ display: 'grid', gap: 8 }}>
-              {roleDistribution.map((r, idx) => (
-                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span>{r.role}</span>
-                  <span style={{ color: '#999' }}>{r.percentage}%（{r.count}）</span>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </Col>
-      </Row>
+            </Card>
+          </Col>
+          <Col span={8}>
+            <Card>
+              <Statistic
+                title="待审核用户"
+                value={stats.pendingApprovals}
+                valueStyle={{ color: '#fa8c16' }}
+                prefix={<ClockCircleOutlined />}
+              />
+            </Card>
+          </Col>
+          <Col span={8}>
+            <Card>
+              <Statistic
+                title="待处理预约"
+                value={stats.pendingAppointments}
+                valueStyle={{ color: '#1890ff' }}
+                prefix={<CalendarOutlined />}
+              />
+            </Card>
+          </Col>
+        </Row>
 
-      {/* 最近用户 */}
-      <Card title="最近注册用户">
-        <Table
-          columns={userColumns}
-          dataSource={recentUsers}
-          rowKey="id"
-          pagination={false}
-          size="small"
-          locale={{ emptyText: '当前无用户' }}
-        />
-      </Card>
-    </div>
+        <Row gutter={16} className="mb-6">
+          <Col span={8}>
+            <Card>
+              <Statistic
+                title="总预约数"
+                value={stats.totalAppointments}
+                prefix={<CalendarOutlined />}
+              />
+            </Card>
+          </Col>
+          <Col span={8}>
+            <Card>
+              <Statistic
+                title="总处方数"
+                value={stats.totalPrescriptions}
+                prefix={<FileTextOutlined />}
+              />
+            </Card>
+          </Col>
+          <Col span={8}>
+            <Card>
+              <Statistic
+                title="总收入"
+                value={stats.totalRevenue}
+                precision={2}
+                valueStyle={{ color: '#52c41a' }}
+                prefix="¥"
+              />
+            </Card>
+          </Col>
+        </Row>
+
+        {/* 图表区域 */}
+        <Row gutter={16} className="mb-6">
+          <Col span={16}>
+            <Card
+              title="业务趋势"
+              extra={
+                <RangePicker
+                  value={dateRange}
+                  onChange={setDateRange}
+                  style={{ width: 240 }}
+                />
+              }
+            >
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 3fr', gap: 8 }}>
+                {chartData.map(d => (
+                  <React.Fragment key={d.date}>
+                    <div style={{ color: '#666' }}>{d.date}</div>
+                    <div>
+                      <div style={{ height: 8, background: '#e6f4ff' }}>
+                        <div style={{ width: `${Math.min(100, d.appointments * 10)}%`, height: 8, background: '#1890ff' }} />
+                      </div>
+                      <div style={{ height: 8, background: '#f6ffed', marginTop: 6 }}>
+                        <div style={{ width: `${Math.min(100, d.prescriptions * 10)}%`, height: 8, background: '#52c41a' }} />
+                      </div>
+                    </div>
+                  </React.Fragment>
+                ))}
+              </div>
+            </Card>
+          </Col>
+          <Col span={8}>
+            <Card title="用户角色分布">
+              <div style={{ display: 'grid', gap: 8 }}>
+                {roleDistribution.map((r, idx) => (
+                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>{r.role}</span>
+                    <span style={{ color: '#999' }}>{r.percentage}%（{r.count}）</span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </Col>
+        </Row>
+
+        {/* 最近用户 */}
+        <Card title="最近注册用户">
+          <Table
+            columns={userColumns}
+            dataSource={recentUsers}
+            rowKey="id"
+            pagination={false}
+            size="small"
+            locale={{ emptyText: '当前无用户' }}
+          />
+        </Card>
+      </div>
     </ErrorBoundary>
   )
 }

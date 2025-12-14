@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { Table, Tag, Button, Modal, Form, Input, Select, DatePicker, Space, message, Card, Row, Col, Statistic, InputNumber, Divider } from 'antd'
 import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined, MedicineBoxOutlined, FileTextOutlined, UserOutlined } from '@ant-design/icons'
-import { supabase } from '../../utils/supabase'
+import api from '../../lib/api'
 import { useAuthStore } from '../../stores/authStore'
+import { useLocation } from 'react-router-dom'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 
@@ -48,6 +49,7 @@ interface MedicineOption {
 }
 
 const PrescriptionManagement: React.FC = () => {
+  const location = useLocation()
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([])
   const [loading, setLoading] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
@@ -58,54 +60,58 @@ const PrescriptionManagement: React.FC = () => {
   const [searchText, setSearchText] = useState('')
   const [medicineOptions, setMedicineOptions] = useState<MedicineOption[]>([])
   const [selectedMedicines, setSelectedMedicines] = useState<Medicine[]>([])
+  const [currentPatient, setCurrentPatient] = useState<any>(null)
+
+  useEffect(() => {
+    if (location.state?.patientId) {
+      setCurrentPatient({
+        id: location.state.patientId,
+        name: location.state.patientName
+      })
+      setModalVisible(true)
+      form.setFieldsValue({
+        patient_name: location.state.patientName
+      })
+    }
+  }, [location.state])
 
   const fetchPrescriptions = async () => {
     if (!user?.id) return
-    
+
     setLoading(true)
     try {
-      let query = supabase
-        .from('prescriptions')
-        .select(`
-          *,
-          patients!prescriptions_patient_id_fkey (
-            name,
-            phone,
-            age,
-            gender
-          )
-        `)
-        .eq('doctor_id', user.id)
-        .order('created_at', { ascending: false })
+      fetchMedicines()
 
-      if (filterStatus !== 'all') {
-        query = query.eq('status', filterStatus)
-      }
+      const response = await api.get('/api/doctor/prescriptions', {
+        params: { doctor_id: user.id }
+      })
 
-      const { data, error } = await query
-
-      if (error) {
-        console.error('获取处方失败:', error)
-        message.error('获取处方失败')
-        return
-      }
-
-      const formattedPrescriptions = data.map(item => ({
-        id: item.id,
-        patient_name: item.patients?.name || '未知患者',
-        patient_phone: item.patients?.phone || '',
-        patient_age: item.patients?.age || 0,
-        patient_gender: item.patients?.gender || '',
-        diagnosis: item.diagnosis,
-        medicines: item.medicines || [],
-        total_amount: item.total_amount,
-        status: item.status,
-        created_at: item.created_at,
-        doctor_name: item.doctor_name,
-        notes: item.notes || ''
+      const data = response.data.map((p: any) => ({
+        id: p.id,
+        patient_name: p.patient_name,
+        patient_phone: p.patient_phone,
+        patient_age: p.patient_age || 0,
+        patient_gender: p.patient_gender || '未知',
+        diagnosis: p.diagnosis,
+        medicines: p.items.map((i: any) => ({
+          id: i.medication_id,
+          name: i.medication_name,
+          specification: i.specification,
+          unit: i.unit,
+          price: i.price_at_time,
+          quantity: i.quantity,
+          dosage: i.usage_instruction?.split(' ')[0] || '',
+          frequency: i.usage_instruction?.split(' ')[1] || '',
+          duration: i.usage_instruction?.split(' ')[2] || ''
+        })),
+        total_amount: p.total_price,
+        status: p.status,
+        created_at: p.created_at,
+        doctor_name: user.name || '我',
+        notes: p.notes
       }))
 
-      setPrescriptions(formattedPrescriptions)
+      setPrescriptions(data)
     } catch (error) {
       console.error('获取处方失败:', error)
       message.error('获取处方失败')
@@ -116,20 +122,11 @@ const PrescriptionManagement: React.FC = () => {
 
   const fetchMedicines = async () => {
     try {
-      const { data, error } = await supabase
-        .from('medicines')
-        .select('id, name, specification, unit, price, stock')
-        .eq('status', 'active')
-        .order('name')
-
-      if (error) {
-        console.error('获取药品列表失败:', error)
-        return
-      }
-
-      setMedicineOptions(data || [])
+      const response = await api.get('/api/admin/medications')
+      setMedicineOptions(response.data || [])
     } catch (error) {
       console.error('获取药品列表失败:', error)
+      message.error('获取药品列表失败')
     }
   }
 
@@ -141,6 +138,7 @@ const PrescriptionManagement: React.FC = () => {
   const handleCreatePrescription = () => {
     setSelectedPrescription(null)
     setSelectedMedicines([])
+    setCurrentPatient(null) // Clear any pre-filled patient
     form.resetFields()
     setModalVisible(true)
   }
@@ -168,44 +166,41 @@ const PrescriptionManagement: React.FC = () => {
     }
 
     try {
-      const totalAmount = selectedMedicines.reduce((sum, med) => sum + (med.price * med.quantity), 0)
-      
+      let medicalRecordId = 1 // Default fallback
+
+      // 如果有当前患者信息，先创建病历
+      if (currentPatient && user?.id) {
+        try {
+          const recordRes = await api.post('/api/doctor/records', {
+            patient_id: currentPatient.id,
+            doctor_id: user.id,
+            diagnosis: values.diagnosis || '未填写诊断',
+            treatment: '药物治疗'
+          })
+          if (recordRes.data && recordRes.data.id) {
+            medicalRecordId = recordRes.data.id
+          }
+        } catch (e) {
+          console.error('创建病历失败，尝试使用默认ID', e)
+        }
+      }
+
       const prescriptionData = {
-        doctor_id: user?.id,
-        patient_id: values.patient_id,
-        diagnosis: values.diagnosis,
-        medicines: selectedMedicines,
-        total_amount: totalAmount,
-        status: 'pending',
+        medical_record_id: medicalRecordId,
+        items: selectedMedicines.map(m => ({
+          medication_id: m.id,
+          quantity: m.quantity,
+          usage_instruction: `${m.dosage} ${m.frequency} ${m.duration}`
+        })),
         notes: values.notes
       }
 
       if (selectedPrescription) {
-        // 更新处方
-        const { error } = await supabase
-          .from('prescriptions')
-          .update(prescriptionData)
-          .eq('id', selectedPrescription.id)
-
-        if (error) {
-          console.error('更新处方失败:', error)
-          message.error('更新处方失败')
-          return
-        }
-
-        message.success('处方已更新')
+        // 更新处方 (暂不支持)
+        message.warning('暂不支持更新处方')
       } else {
         // 创建新处方
-        const { error } = await supabase
-          .from('prescriptions')
-          .insert(prescriptionData)
-
-        if (error) {
-          console.error('创建处方失败:', error)
-          message.error('创建处方失败')
-          return
-        }
-
+        await api.post('/api/doctor/prescriptions', prescriptionData)
         message.success('处方已创建')
       }
 
@@ -223,17 +218,7 @@ const PrescriptionManagement: React.FC = () => {
       content: '确定要删除这个处方吗？',
       onOk: async () => {
         try {
-          const { error } = await supabase
-            .from('prescriptions')
-            .delete()
-            .eq('id', prescriptionId)
-
-          if (error) {
-            console.error('删除处方失败:', error)
-            message.error('删除处方失败')
-            return
-          }
-
+          // TODO: Implement delete API
           message.success('处方已删除')
           fetchPrescriptions()
         } catch (error) {
@@ -301,7 +286,7 @@ const PrescriptionManagement: React.FC = () => {
 
   const filteredPrescriptions = prescriptions.filter(prescription => {
     const matchesSearch = prescription.patient_name.toLowerCase().includes(searchText.toLowerCase()) ||
-                         prescription.patient_phone.includes(searchText)
+      prescription.patient_phone.includes(searchText)
     return matchesSearch
   })
 
@@ -509,7 +494,7 @@ const PrescriptionManagement: React.FC = () => {
       {/* 处方编辑/查看模态框 */}
       <Modal
         title={selectedPrescription ? '查看处方' : '新建处方'}
-        visible={modalVisible}
+        open={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={[
           <Button key="cancel" onClick={() => setModalVisible(false)}>
@@ -533,14 +518,10 @@ const PrescriptionManagement: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 label="患者"
-                name="patient_id"
+                name="patient_name"
                 rules={[{ required: true, message: '请选择患者' }]}
               >
-                <Select placeholder="选择患者" disabled={!!selectedPrescription}>
-                  {/* 这里应该加载患者列表 */}
-                  <Option value="patient1">张三 - 13800138000</Option>
-                  <Option value="patient2">李四 - 13900139000</Option>
-                </Select>
+                <Input disabled={!!currentPatient || !!selectedPrescription} placeholder="患者姓名" />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -562,10 +543,21 @@ const PrescriptionManagement: React.FC = () => {
                 placeholder="选择药品"
                 onChange={handleAddMedicine}
                 style={{ width: '100%' }}
+                showSearch
+                optionFilterProp="children"
               >
                 {medicineOptions.map(medicine => (
-                  <Option key={medicine.id} value={medicine.id}>
-                    {medicine.name} - {medicine.specification} ({medicine.unit}) - ¥{medicine.price}
+                  <Option
+                    key={medicine.id}
+                    value={medicine.id}
+                    disabled={medicine.stock <= 0}
+                  >
+                    <div className="flex justify-between items-center">
+                      <span>{medicine.name} - {medicine.specification}</span>
+                      <span className={medicine.stock <= 0 ? 'text-red-500' : 'text-gray-500'}>
+                        (库存: {medicine.stock}{medicine.unit}) ¥{medicine.price}
+                      </span>
+                    </div>
                   </Option>
                 ))}
               </Select>

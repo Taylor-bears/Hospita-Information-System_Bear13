@@ -27,7 +27,7 @@ export default function InventoryManagement() {
   const [editingRecord, setEditingRecord] = useState<any>(null)
   const [movementModalVisible, setMovementModalVisible] = useState(false)
   const [selectedInventory, setSelectedInventory] = useState<any>(null)
-  
+
   const queryClient = useQueryClient()
   const [form] = Form.useForm()
   const [movementForm] = Form.useForm()
@@ -42,7 +42,7 @@ export default function InventoryManagement() {
         category: selectedCategory || undefined,
         lowStock: showLowStock || undefined
       }
-      
+
       const { data, error } = await inventoryAPI.getInventory(params)
       if (error) throw error
       return data || []
@@ -55,7 +55,7 @@ export default function InventoryManagement() {
     queryFn: async () => {
       const { data, error } = await drugAPI.getDrugs({ pageSize: 1000 })
       if (error) throw error
-      
+
       const categories = [...new Set(data?.map((drug: any) => drug.category).filter(Boolean))]
       return categories || []
     }
@@ -95,16 +95,16 @@ export default function InventoryManagement() {
   const stockMovementMutation = useMutation({
     mutationFn: async (values: StockMovementForm) => {
       if (!selectedInventory) return
-      
+
       const movementQuantity = values.movementType === 'inbound' ? values.quantity : -values.quantity
-      
+
       const { error } = await inventoryAPI.updateStock(
         selectedInventory.id,
         movementQuantity,
         values.movementType,
         undefined
       )
-      
+
       if (error) throw error
     },
     onSuccess: () => {
@@ -220,10 +220,10 @@ export default function InventoryManagement() {
         const expiryDate = dayjs(date)
         const isExpired = expiryDate.isBefore(dayjs())
         const isNearExpiry = expiryDate.isBefore(dayjs().add(30, 'day'))
-        
+
         return (
-          <Text style={{ 
-            color: isExpired ? '#f5222d' : isNearExpiry ? '#fa8c16' : undefined 
+          <Text style={{
+            color: isExpired ? '#f5222d' : isNearExpiry ? '#fa8c16' : undefined
           }}>
             {expiryDate.format('YYYY-MM-DD')}
           </Text>
@@ -237,7 +237,7 @@ export default function InventoryManagement() {
         const isLowStock = record.quantity <= record.min_stock
         const isExpired = record.expiry_date && dayjs(record.expiry_date).isBefore(dayjs())
         const isNearExpiry = record.expiry_date && dayjs(record.expiry_date).isBefore(dayjs().add(30, 'day'))
-        
+
         return (
           <Space>
             {isLowStock && <Tag color="red">低库存</Tag>}
@@ -254,24 +254,24 @@ export default function InventoryManagement() {
       width: 200,
       render: (_: any, record: any) => (
         <Space size="small">
-          <Button 
-            type="link" 
+          <Button
+            type="link"
             size="small"
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
           >
             编辑
           </Button>
-          <Button 
-            type="link" 
+          <Button
+            type="link"
             size="small"
             icon={<StockOutlined />}
             onClick={() => handleStockMovement(record, 'inbound')}
           >
             入库
           </Button>
-          <Button 
-            type="link" 
+          <Button
+            type="link"
             size="small"
             onClick={() => handleStockMovement(record, 'outbound')}
           >
@@ -292,15 +292,15 @@ export default function InventoryManagement() {
           </Col>
           <Col>
             <Space>
-              <Button 
+              <Button
                 type={showLowStock ? "primary" : "default"}
                 icon={<WarningOutlined />}
                 onClick={() => setShowLowStock(!showLowStock)}
               >
                 {showLowStock ? "显示全部" : "低库存"}
               </Button>
-              <Button 
-                type="primary" 
+              <Button
+                type="primary"
                 icon={<PlusOutlined />}
                 onClick={() => setModalVisible(true)}
               >
@@ -337,7 +337,7 @@ export default function InventoryManagement() {
           <Card>
             <Statistic
               title="近效期药品"
-              value={inventoryData?.filter(item => 
+              value={inventoryData?.filter(item =>
                 item.expiry_date && dayjs(item.expiry_date).isBefore(dayjs().add(30, 'day'))
               ).length || 0}
               prefix={<MedicineBoxOutlined />}

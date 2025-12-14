@@ -5,30 +5,71 @@ from typing import List, Optional
 
 from backend.database import get_db
 from backend.ai.service import generate_suggestion
+from backend import models
 
 router = APIRouter(prefix="/api", tags=["AIConsult"])
 
 
 class ConsultBody(BaseModel):
     question: str
-    user_id: str
+    user_id: Optional[int] = None  # Changed to Optional to prevent 422 if user context is missing
 
 
 @router.post("/ai-consultation")
-def ai_consultation(body: ConsultBody):
-    payload = {
-        "symptoms": body.question,
-        "diagnosis": "",
-        "medications": [],
-        "constraints": {},
-        "language": "zh"
-    }
-    result = generate_suggestion(payload)
-    if result.get("success"):
-        return {"answer": result.get("content", ""), "suggestions": []}
-    else:
-        fallback = result.get("fallback")
-        raise HTTPException(status_code=502, detail=fallback or result.get("error", {}).get("message", "AI服务不可用"))
+def ai_consultation(body: ConsultBody, db: Session = Depends(get_db)):
+    print(f"Received AI consultation request: {body.question[:50]}... User: {body.user_id}")
+    try:
+        # Fetch patient context
+        patient_info = ""
+        if body.user_id:
+            patient_profile = db.query(models.PatientProfile).filter(models.PatientProfile.user_id == body.user_id).first()
+            
+            if patient_profile:
+                # Calculate age if possible, or just pass ID/Name
+                patient_info = f"患者姓名: {patient_profile.name or '未知'}"
+                if patient_profile.id_card and len(patient_profile.id_card) == 18:
+                     # Simple age estimation from ID card (optional, but helpful)
+                     try:
+                         birth_year = int(patient_profile.id_card[6:10])
+                         import datetime
+                         current_year = datetime.datetime.now().year
+                         age = current_year - birth_year
+                         patient_info += f", 年龄: {age}岁"
+                     except:
+                         pass
+
+        # Fetch available departments
+        available_departments = []
+        try:
+            departments = db.query(models.DoctorProfile.department).distinct().all()
+            available_departments = [d[0] for d in departments if d[0]]
+        except Exception as e:
+            print(f"Error fetching departments: {e}")
+
+        payload = {
+            "symptoms": body.question,
+            "diagnosis": "",
+            "medications": [],
+            "constraints": {
+                "patient_info": patient_info,
+                "available_departments": available_departments
+            },
+            "language": "zh"
+        }
+        result = generate_suggestion(payload)
+        if result.get("success"):
+            return {"answer": result.get("content", ""), "suggestions": []}
+        else:
+            fallback = result.get("fallback")
+            # Return 200 with fallback instead of 502 to handle it gracefully in frontend
+            return {"answer": fallback, "suggestions": [], "is_fallback": True}
+    except Exception as e:
+        print(f"AI Consultation Error: {e}")
+        return {
+            "answer": "AI服务暂时遇到内部错误，请稍后再试。建议您直接前往医院就诊。",
+            "suggestions": [],
+            "is_fallback": True
+        }
 
 
 class BlessingBody(BaseModel):

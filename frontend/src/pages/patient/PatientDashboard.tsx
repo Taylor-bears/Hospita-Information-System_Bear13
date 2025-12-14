@@ -1,8 +1,8 @@
 import React from 'react'
 import { Card, Row, Col, Statistic, Button, Calendar, List, Tag, Space } from 'antd'
-import { 
-  CalendarOutlined, 
-  RobotOutlined, 
+import {
+  CalendarOutlined,
+  RobotOutlined,
   MedicineBoxOutlined,
   UserOutlined,
   ClockCircleOutlined,
@@ -20,6 +20,13 @@ export default function PatientDashboard() {
 
   const [upcomingAppointments, setUpcomingAppointments] = React.useState<any[]>([])
   const [recentPrescriptions, setRecentPrescriptions] = React.useState<any[]>([])
+  const [stats, setStats] = React.useState({
+    todayAppointments: 0,
+    monthAppointments: 0,
+    pendingPaymentPrescriptions: 0,
+    historyPrescriptions: 0
+  })
+
   React.useEffect(() => {
     const run = async () => {
       try {
@@ -27,25 +34,29 @@ export default function PatientDashboard() {
         const aps = Array.isArray(apRes.data) ? apRes.data.slice(0, 5) : []
         const mapped = aps.map((a: any) => ({
           id: a.id,
-          doctor_name: '医生',
-          department: '内科',
-          appointment_time: a.created_at?.replace('T', ' ').slice(0, 16),
+          doctor_name: a.doctor_name || '医生',
+          department: a.doctor_department || '普通门诊',
+          appointment_time: a.appointment_time || a.created_at?.replace('T', ' ').slice(0, 16),
           status: a.status,
         }))
         setUpcomingAppointments(mapped)
-      } catch {}
+      } catch { }
       try {
-        const orRes = await api.get('/api/orders/my', { params: { patient_id: user?.id } })
+        const orRes = await api.get('/api/pharmacy/prescriptions', { params: { patient_id: user?.id } })
         const list = Array.isArray(orRes.data) ? orRes.data.slice(0, 5) : []
         const mapped = list.map((o: any) => ({
           id: o.id,
-          doctor_name: '医生',
+          doctor_name: o.doctor_name || '医生',
           prescribed_date: o.created_at?.slice(0, 10),
-          status: o.payment_status === 'paid' ? 'paid' : 'pending',
-          total_amount: o.total_amount,
+          status: o.status,
+          total_amount: o.total_price,
         }))
         setRecentPrescriptions(mapped)
-      } catch {}
+      } catch { }
+      try {
+        const statsRes = await api.get('/api/stats/patient', { params: { patient_id: user?.id } })
+        setStats(statsRes.data)
+      } catch { }
     }
     run()
   }, [user?.id])
@@ -110,9 +121,9 @@ export default function PatientDashboard() {
             欢迎回来，{user?.name}！
           </h1>
           <p style={{ fontSize: '16px', opacity: 0.9 }}>
-            今天是 {new Date().toLocaleDateString('zh-CN', { 
-              year: 'numeric', 
-              month: 'long', 
+            今天是 {new Date().toLocaleDateString('zh-CN', {
+              year: 'numeric',
+              month: 'long',
               day: 'numeric',
               weekday: 'long'
             })}
@@ -127,8 +138,8 @@ export default function PatientDashboard() {
             <Card
               hoverable
               onClick={action.action}
-              style={{ 
-                textAlign: 'center', 
+              style={{
+                textAlign: 'center',
                 cursor: 'pointer',
                 border: `2px solid ${action.color}20`,
                 transition: 'all 0.3s ease'
@@ -138,8 +149,8 @@ export default function PatientDashboard() {
               <div style={{ marginBottom: '16px' }}>
                 {action.icon}
               </div>
-              <h3 style={{ 
-                marginBottom: '8px', 
+              <h3 style={{
+                marginBottom: '8px',
                 color: action.color,
                 fontSize: '18px',
                 fontWeight: 'bold'
@@ -162,7 +173,7 @@ export default function PatientDashboard() {
               <Col span={12}>
                 <Statistic
                   title="今日预约"
-                  value={1}
+                  value={stats.todayAppointments}
                   prefix={<CalendarOutlined />}
                   valueStyle={{ color: '#1890ff' }}
                 />
@@ -170,7 +181,7 @@ export default function PatientDashboard() {
               <Col span={12}>
                 <Statistic
                   title="本月预约"
-                  value={5}
+                  value={stats.monthAppointments}
                   prefix={<CheckCircleOutlined />}
                   valueStyle={{ color: '#52c41a' }}
                 />
@@ -185,7 +196,7 @@ export default function PatientDashboard() {
               <Col span={12}>
                 <Statistic
                   title="待支付药单"
-                  value={1}
+                  value={stats.pendingPaymentPrescriptions}
                   prefix={<MedicineBoxOutlined />}
                   valueStyle={{ color: '#faad14' }}
                 />
@@ -193,7 +204,7 @@ export default function PatientDashboard() {
               <Col span={12}>
                 <Statistic
                   title="历史药单"
-                  value={12}
+                  value={stats.historyPrescriptions}
                   prefix={<CheckCircleOutlined />}
                   valueStyle={{ color: '#52c41a' }}
                 />
@@ -204,7 +215,7 @@ export default function PatientDashboard() {
 
         <Col xs={24} lg={8}>
           <Card title="快速日历" style={{ height: '100%' }}>
-            <Calendar 
+            <Calendar
               fullscreen={false}
               style={{ border: 'none' }}
               headerRender={() => null}
@@ -216,7 +227,7 @@ export default function PatientDashboard() {
       {/* 最近预约 */}
       <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
         <Col xs={24} lg={12}>
-          <Card 
+          <Card
             title={
               <Space>
                 <ClockCircleOutlined />
@@ -256,7 +267,7 @@ export default function PatientDashboard() {
         </Col>
 
         <Col xs={24} lg={12}>
-          <Card 
+          <Card
             title={
               <Space>
                 <MedicineBoxOutlined />

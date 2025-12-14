@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from 'react'
-import { 
-  Card, 
-  Row, 
-  Col, 
-  Statistic, 
-  Calendar, 
-  List, 
-  Tag, 
-  Space, 
+import {
+  Card,
+  Row,
+  Col,
+  Statistic,
+  Calendar,
+  List,
+  Tag,
+  Space,
   Button,
   Avatar,
   Badge,
   Timeline,
   Empty
 } from 'antd'
-import { 
-  CalendarOutlined, 
-  UserOutlined, 
+import {
+  CalendarOutlined,
+  UserOutlined,
   MedicineBoxOutlined,
   ClockCircleOutlined,
   CheckCircleOutlined,
@@ -24,7 +24,7 @@ import {
   UsergroupAddOutlined,
   FileTextOutlined
 } from '@ant-design/icons'
-import { supabase } from '../../lib/supabase'
+import api from '../../lib/api'
 import { useAuthStore } from '../../stores/authStore'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
@@ -48,115 +48,57 @@ export default function DoctorDashboard() {
   const fetchTodayAppointments = async () => {
     try {
       const today = dayjs().format('YYYY-MM-DD')
+      // date_to is exclusive in backend logic: q = q.filter(models.DoctorSchedule.date < dtt)
+      // So to get today's appointments, we need date_from=today and date_to=tomorrow
       const tomorrow = dayjs().add(1, 'day').format('YYYY-MM-DD')
-      
-      const { data, error } = await supabase
-        .from('appointments')
-        .select(`
-          *,
-          users!appointments_patient_id_fkey(name, phone)
-        `)
-        .eq('doctor_id', user?.id)
-        .gte('appointment_time', today)
-        .lt('appointment_time', tomorrow)
-        .eq('status', 'scheduled')
-        .order('appointment_time', { ascending: true })
-
-      if (error) throw error
-      setTodayAppointments(data || [])
+      const res = await api.get(`/appointments/doctor/${user?.id}`, {
+        params: {
+          date_from: today,
+          date_to: tomorrow
+        }
+      })
+      // Ensure res.data is an array
+      setTodayAppointments(Array.isArray(res.data) ? res.data : [])
     } catch (error) {
       console.error('Error fetching today appointments:', error)
+      setTodayAppointments([])
     }
   }
 
   // 获取近期预约
   const fetchUpcomingAppointments = async () => {
     try {
-      const { data, error } = await supabase
-        .from('appointments')
-        .select(`
-          *,
-          users!appointments_patient_id_fkey(name, phone)
-        `)
-        .eq('doctor_id', user?.id)
-        .eq('status', 'scheduled')
-        .gte('appointment_time', dayjs().format('YYYY-MM-DD'))
-        .order('appointment_time', { ascending: true })
-        .limit(5)
-
-      if (error) throw error
-      setUpcomingAppointments(data || [])
+      const tomorrow = dayjs().add(1, 'day').format('YYYY-MM-DD')
+      const nextWeek = dayjs().add(8, 'day').format('YYYY-MM-DD')
+      const res = await api.get(`/appointments/doctor/${user?.id}`, {
+        params: {
+          date_from: tomorrow,
+          date_to: nextWeek
+        }
+      })
+      setUpcomingAppointments(Array.isArray(res.data) ? res.data : [])
     } catch (error) {
       console.error('Error fetching upcoming appointments:', error)
+      setUpcomingAppointments([])
     }
   }
 
   // 获取近期处方
   const fetchRecentPrescriptions = async () => {
     try {
-      const { data, error } = await supabase
-        .from('prescriptions')
-        .select(`
-          *,
-          users!prescriptions_patient_id_fkey(name, phone)
-        `)
-        .eq('doctor_id', user?.id)
-        .order('created_at', { ascending: false })
-        .limit(5)
-
-      if (error) throw error
-      setRecentPrescriptions(data || [])
+      const res = await api.get('/api/doctor/prescriptions', { params: { doctor_id: user?.id } })
+      setRecentPrescriptions(res.data.slice(0, 5) || [])
     } catch (error) {
       console.error('Error fetching recent prescriptions:', error)
+      setRecentPrescriptions([])
     }
   }
 
   // 获取统计数据
   const fetchStatistics = async () => {
     try {
-      // 今日预约数
-      const today = dayjs().format('YYYY-MM-DD')
-      const tomorrow = dayjs().add(1, 'day').format('YYYY-MM-DD')
-      
-      const { count: todayCount } = await supabase
-        .from('appointments')
-        .select('*', { count: 'exact', head: true })
-        .eq('doctor_id', user?.id)
-        .gte('appointment_time', today)
-        .lt('appointment_time', tomorrow)
-
-      // 本周预约数
-      const weekStart = dayjs().startOf('week').format('YYYY-MM-DD')
-      const weekEnd = dayjs().endOf('week').format('YYYY-MM-DD')
-      
-      const { count: weekCount } = await supabase
-        .from('appointments')
-        .select('*', { count: 'exact', head: true })
-        .eq('doctor_id', user?.id)
-        .gte('appointment_time', weekStart)
-        .lt('appointment_time', weekEnd)
-
-      // 待处理处方数
-      const { count: pendingCount } = await supabase
-        .from('prescriptions')
-        .select('*', { count: 'exact', head: true })
-        .eq('doctor_id', user?.id)
-        .eq('status', 'pending')
-
-      // 总患者数（去重）
-      const { data: patientData } = await supabase
-        .from('appointments')
-        .select('patient_id')
-        .eq('doctor_id', user?.id)
-
-      const uniquePatients = new Set(patientData?.map(item => item.patient_id))
-
-      setStatistics({
-        todayAppointments: todayCount || 0,
-        weekAppointments: weekCount || 0,
-        pendingPrescriptions: pendingCount || 0,
-        totalPatients: uniquePatients.size
-      })
+      const res = await api.get('/api/stats/doctor', { params: { doctor_id: user?.id } })
+      setStatistics(res.data)
     } catch (error) {
       console.error('Error fetching statistics:', error)
     }
@@ -164,7 +106,8 @@ export default function DoctorDashboard() {
 
   // 获取预约时间段
   const getAppointmentTime = (time: string) => {
-    return dayjs(time).format('HH:mm')
+    // time format is "HH:mm-HH:mm" or just "HH:mm"
+    return time
   }
 
   // 获取预约状态标签
@@ -207,10 +150,10 @@ export default function DoctorDashboard() {
   // 获取日历事件
   const getCalendarEvents = () => {
     const events = upcomingAppointments.map(appointment => ({
-      date: dayjs(appointment.appointment_time).format('YYYY-MM-DD'),
+      date: appointment.appointment_date,
       content: (
         <div style={{ fontSize: '12px' }}>
-          <Badge status="processing" text={`${getAppointmentTime(appointment.appointment_time)} ${appointment.users.name}`} />
+          <Badge status="processing" text={`${getAppointmentTime(appointment.appointment_time)} ${appointment.patient_name}`} />
         </div>
       )
     }))
@@ -266,7 +209,7 @@ export default function DoctorDashboard() {
       <Row gutter={[24, 24]}>
         {/* 今日预约 */}
         <Col xs={24} lg={12}>
-          <Card 
+          <Card
             title={
               <Space>
                 <CalendarOutlined />
@@ -288,11 +231,11 @@ export default function DoctorDashboard() {
                       <div>
                         <strong>{getAppointmentTime(appointment.appointment_time)}</strong>
                         <span style={{ marginLeft: '8px' }}>
-                          {appointment.users.name}
+                          {appointment.patient_name}
                         </span>
                       </div>
                       <div style={{ color: '#666', fontSize: '12px' }}>
-                        电话: {appointment.users.phone}
+                        电话: {appointment.patient_phone}
                       </div>
                       {appointment.notes && (
                         <div style={{ color: '#666', fontSize: '12px' }}>
@@ -311,7 +254,7 @@ export default function DoctorDashboard() {
 
         {/* 预约日历 */}
         <Col xs={24} lg={12}>
-          <Card 
+          <Card
             title={
               <Space>
                 <CalendarOutlined />
@@ -342,7 +285,7 @@ export default function DoctorDashboard() {
       {/* 近期预约和处方 */}
       <Row gutter={[24, 24]} style={{ marginTop: '24px' }}>
         <Col xs={24} lg={12}>
-          <Card 
+          <Card
             title={
               <Space>
                 <UserOutlined />
@@ -358,14 +301,14 @@ export default function DoctorDashboard() {
                     avatar={<Avatar icon={<UserOutlined />} />}
                     title={
                       <Space>
-                        <span>{appointment.users.name}</span>
+                        <span>{appointment.patient_name}</span>
                         {getAppointmentStatus(appointment.status)}
                       </Space>
                     }
                     description={
                       <Space direction="vertical">
-                        <span>{dayjs(appointment.appointment_time).format('YYYY-MM-DD HH:mm')}</span>
-                        <span style={{ color: '#666' }}>电话: {appointment.users.phone}</span>
+                        <span>{appointment.appointment_date} {appointment.appointment_time}</span>
+                        <span style={{ color: '#666' }}>电话: {appointment.patient_phone}</span>
                         {appointment.notes && (
                           <span style={{ color: '#666' }}>备注: {appointment.notes}</span>
                         )}
@@ -379,7 +322,7 @@ export default function DoctorDashboard() {
         </Col>
 
         <Col xs={24} lg={12}>
-          <Card 
+          <Card
             title={
               <Space>
                 <FileTextOutlined />
@@ -401,12 +344,12 @@ export default function DoctorDashboard() {
                     }
                     description={
                       <Space direction="vertical">
-                        <span>患者: {prescription.users.name}</span>
+                        <span>患者: {prescription.patient_name}</span>
                         <span style={{ color: '#666' }}>
-                          开具时间: {dayjs(prescription.prescribed_date).format('YYYY-MM-DD HH:mm')}
+                          开具时间: {dayjs(prescription.created_at).format('YYYY-MM-DD HH:mm')}
                         </span>
                         <span style={{ color: '#1890ff', fontWeight: 'bold' }}>
-                          金额: ¥{prescription.total_amount}
+                          金额: ¥{prescription.total_price}
                         </span>
                       </Space>
                     }

@@ -97,9 +97,15 @@ class Medication(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), unique=True, nullable=False)
     category = Column(String(50), nullable=False)
+    specification = Column(String(50), nullable=True) # 规格
+    unit = Column(String(20), nullable=True)          # 单位
+    manufacturer = Column(String(100), nullable=True) # 生产厂家
     stock = Column(Integer, nullable=False, default=0)
+    min_stock = Column(Integer, default=10)
+    max_stock = Column(Integer, default=1000)
     price = Column(Integer, nullable=False, default=0)
     status = Column(Enum(MedicationStatus), nullable=False, default=MedicationStatus.active)
+    description = Column(String(500), nullable=True)
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now())
 
@@ -156,3 +162,36 @@ class MedicalRecord(Base):
     status = Column(Enum(MedicalRecordStatus), default=MedicalRecordStatus.active)
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
+
+
+# ==================== 处方管理 ====================
+
+class PrescriptionStatus(str, enum.Enum):
+    pending = "pending"      # 待支付/待发药
+    paid = "paid"            # 已支付，待发药
+    dispensed = "dispensed"  # 已发药
+    cancelled = "cancelled"  # 已取消
+
+class Prescription(Base):
+    __tablename__ = "prescriptions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    medical_record_id = Column(Integer, ForeignKey("medical_records.id"), nullable=False)
+    doctor_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    patient_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    status = Column(Enum(PrescriptionStatus), default=PrescriptionStatus.pending)
+    total_price = Column(Integer, default=0)  # 总价（分）
+    notes = Column(String(255), nullable=True)
+    created_at = Column(TIMESTAMP, server_default=func.now())
+    updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
+
+class PrescriptionItem(Base):
+    __tablename__ = "prescription_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    prescription_id = Column(Integer, ForeignKey("prescriptions.id"), nullable=False)
+    medication_id = Column(Integer, ForeignKey("medications.id"), nullable=False)
+    quantity = Column(Integer, nullable=False, default=1)
+    price_at_time = Column(Integer, nullable=False)  # 开药时的单价
+    usage_instruction = Column(String(255), nullable=True) # 用法用量
+

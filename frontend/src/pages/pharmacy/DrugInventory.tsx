@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Table, Tag, Button, Modal, Form, Input, Select, Space, message, Card, Row, Col, Statistic, InputNumber } from 'antd'
 import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, MedicineBoxOutlined, StockOutlined } from '@ant-design/icons'
-import { supabase } from '../../utils/supabase'
+import api from '../../lib/api'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 
@@ -11,7 +11,7 @@ const { TextArea } = Input
 const { Option } = Select
 
 interface Medicine {
-  id: string
+  id: number
   name: string
   specification: string
   unit: string
@@ -56,20 +56,8 @@ const DrugInventory: React.FC = () => {
   const fetchMedicines = async () => {
     setLoading(true)
     try {
-      let query = supabase
-        .from('medicines')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      const { data, error } = await query
-
-      if (error) {
-        console.error('获取药品列表失败:', error)
-        message.error('获取药品列表失败')
-        return
-      }
-
-      setMedicines(data || [])
+      const response = await api.get('/api/admin/medications')
+      setMedicines(response.data || [])
     } catch (error) {
       console.error('获取药品列表失败:', error)
       message.error('获取药品列表失败')
@@ -78,45 +66,10 @@ const DrugInventory: React.FC = () => {
     }
   }
 
-  const fetchStockLogs = async (medicineId?: string) => {
-    try {
-      let query = supabase
-        .from('stock_logs')
-        .select(`
-          *,
-          medicines!stock_logs_medicine_id_fkey (name)
-        `)
-        .order('created_at', { ascending: false })
-        .limit(50)
-
-      if (medicineId) {
-        query = query.eq('medicine_id', medicineId)
-      }
-
-      const { data, error } = await query
-
-      if (error) {
-        console.error('获取库存记录失败:', error)
-        return
-      }
-
-      const formattedLogs = data.map(item => ({
-        id: item.id,
-        medicine_id: item.medicine_id,
-        medicine_name: item.medicines?.name || '未知药品',
-        type: item.type,
-        quantity: item.quantity,
-        previous_stock: item.previous_stock,
-        new_stock: item.new_stock,
-        reason: item.reason,
-        created_at: item.created_at,
-        operator_name: item.operator_name
-      }))
-
-      setStockLogs(formattedLogs)
-    } catch (error) {
-      console.error('获取库存记录失败:', error)
-    }
+  const fetchStockLogs = async (medicineId?: number) => {
+    // TODO: Implement stock logs API
+    console.log('Fetching stock logs for', medicineId)
+    setStockLogs([])
   }
 
   useEffect(() => {
@@ -147,23 +100,13 @@ const DrugInventory: React.FC = () => {
     setModalVisible(true)
   }
 
-  const handleDeleteMedicine = (medicineId: string) => {
+  const handleDeleteMedicine = (medicineId: number) => {
     Modal.confirm({
       title: '确认删除',
       content: '确定要删除这个药品吗？删除后将无法恢复。',
       onOk: async () => {
         try {
-          const { error } = await supabase
-            .from('medicines')
-            .delete()
-            .eq('id', medicineId)
-
-          if (error) {
-            console.error('删除药品失败:', error)
-            message.error('删除药品失败')
-            return
-          }
-
+          await api.delete(`/api/admin/medications/${medicineId}`)
           message.success('药品已删除')
           fetchMedicines()
         } catch (error) {
@@ -178,79 +121,34 @@ const DrugInventory: React.FC = () => {
     try {
       if (selectedMedicine) {
         // 更新药品
-        const { error } = await supabase
-          .from('medicines')
-          .update({
-            name: values.name,
-            specification: values.specification,
-            unit: values.unit,
-            price: values.price,
-            stock: values.stock,
-            min_stock: values.min_stock,
-            max_stock: values.max_stock,
-            category: values.category,
-            manufacturer: values.manufacturer,
-            status: values.status,
-            description: values.description,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', selectedMedicine.id)
-
-        if (error) {
-          console.error('更新药品失败:', error)
-          message.error('更新药品失败')
-          return
-        }
-
+        await api.put(`/api/admin/medications/${selectedMedicine.id}`, {
+          ...values,
+          status: values.status || 'active'
+        })
         message.success('药品已更新')
       } else {
         // 创建新药品
-        const { error } = await supabase
-          .from('medicines')
-          .insert({
-            name: values.name,
-            specification: values.specification,
-            unit: values.unit,
-            price: values.price,
-            stock: values.stock,
-            min_stock: values.min_stock,
-            max_stock: values.max_stock,
-            category: values.category,
-            manufacturer: values.manufacturer,
-            status: values.status,
-            description: values.description,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          })
-
-        if (error) {
-          console.error('创建药品失败:', error)
-          message.error('创建药品失败')
-          return
-        }
-
+        await api.post('/api/admin/medications', {
+          ...values,
+          status: values.status || 'active'
+        })
         message.success('药品已创建')
       }
-
       setModalVisible(false)
+      form.resetFields()
       fetchMedicines()
     } catch (error) {
-      console.error('保存药品失败:', error)
-      message.error('保存药品失败')
+      console.error('操作失败:', error)
+      message.error('操作失败')
     }
   }
 
-  const handleAdjustStock = async (medicineId: string, adjustment: number, reason: string) => {
+  const handleAdjustStock = async (medicineId: number, adjustment: number, reason: string) => {
     try {
-      // 获取当前库存
-      const { data: medicine, error: fetchError } = await supabase
-        .from('medicines')
-        .select('stock, name')
-        .eq('id', medicineId)
-        .single()
+      // 获取当前药品信息
+      const { data: medicine } = await api.get(`/api/admin/medications/${medicineId}`)
 
-      if (fetchError || !medicine) {
-        console.error('获取药品信息失败:', fetchError)
+      if (!medicine) {
         message.error('获取药品信息失败')
         return
       }
@@ -258,36 +156,20 @@ const DrugInventory: React.FC = () => {
       const newStock = medicine.stock + adjustment
 
       // 更新库存
-      const { error: updateError } = await supabase
-        .from('medicines')
-        .update({ stock: newStock })
-        .eq('id', medicineId)
+      await api.put(`/api/admin/medications/${medicineId}`, {
+        ...medicine,
+        stock: newStock
+      })
 
-      if (updateError) {
-        console.error('更新库存失败:', updateError)
-        message.error('更新库存失败')
-        return
-      }
-
-      // 记录库存变动
-      const { error: logError } = await supabase
-        .from('stock_logs')
-        .insert({
-          medicine_id: medicineId,
-          type: adjustment > 0 ? 'in' : 'out',
-          quantity: Math.abs(adjustment),
-          previous_stock: medicine.stock,
-          new_stock: newStock,
-          reason: reason,
-          operator_name: '药房管理员', // 应该从当前用户获取
-          created_at: new Date().toISOString()
-        })
-
-      if (logError) {
-        console.error('记录库存变动失败:', logError)
-      }
-
-      message.success('库存已调整')
+      // TODO: 记录库存变动日志 (后端暂未实现)
+      console.log('Stock adjusted:', {
+        medicine_id: medicineId,
+        type: adjustment > 0 ? 'in' : 'out',
+        quantity: Math.abs(adjustment),
+        previous_stock: medicine.stock,
+        new_stock: newStock,
+        reason: reason
+      })
       fetchMedicines()
     } catch (error) {
       console.error('调整库存失败:', error)
@@ -322,7 +204,7 @@ const DrugInventory: React.FC = () => {
       onOk: async () => {
         const adjustment = (window as any).tempAdjustment
         const reason = (window as any).tempReason
-        
+
         if (!adjustment || !reason) {
           message.error('请输入调整数量和原因')
           return Promise.reject()
@@ -378,10 +260,10 @@ const DrugInventory: React.FC = () => {
 
   const filteredMedicines = medicines.filter(medicine => {
     const matchesSearch = medicine.name.toLowerCase().includes(searchText.toLowerCase()) ||
-                         medicine.specification.toLowerCase().includes(searchText.toLowerCase())
+      medicine.specification.toLowerCase().includes(searchText.toLowerCase())
     const matchesCategory = categoryFilter === 'all' || medicine.category === categoryFilter
     const matchesStatus = statusFilter === 'all' || medicine.status === statusFilter
-    
+
     let matchesStock = true
     if (stockFilter === 'low') {
       matchesStock = medicine.stock <= medicine.min_stock
@@ -685,7 +567,7 @@ const DrugInventory: React.FC = () => {
       {/* 药品编辑模态框 */}
       <Modal
         title={selectedMedicine ? '编辑药品' : '新增药品'}
-        visible={modalVisible}
+        open={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={[
           <Button key="cancel" onClick={() => setModalVisible(false)}>

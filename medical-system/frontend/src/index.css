@@ -1,0 +1,145 @@
+/* Typography */
+body {
+    margin: 0;
+    font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #0f1724;
+    /* Use the requested background image */
+    background: url('/src/images/生成医疗管理系统背景图.png') no-repeat center center fixed;
+    background-size: cover;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Overlay to ensure text readability if background is busy */
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(240, 245, 255, 0.25);
+    /* Light blue tint overlay */
+    z-index: 0;
+}
+
+/* container centers the auth card */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 24px;
+    z-index: 1;
+    position: relative;
+}
+
+/* Auth card - Single centered card style */
+.auth-card {
+    width: 440px;
+    max-width: 100%;
+    border-radius: 16px;
+    padding: 48px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+    background: #ffffff;
+    border: 1px solid rgba(224, 230, 237, 0.8);
+}
+
+/* Register card needs to be slightly wider or same */
+.register-card {
+    width: 500px;
+    min-height: 600px;
+    /* Prevent jumping when alert appears */
+    transition: height 0.3s ease;
+}
+
+.auth-heading {
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    text-align: center;
+    color: #1a3353;
+}
+
+.auth-sub {
+    color: #64748b;
+    margin-bottom: 32px;
+    text-align: center;
+    font-size: 15px;
+}
+
+/* Form controls */
+/* Fix for Ant Design Input.Group / AffixWrapper to have rounded corners */
+.ant-input-affix-wrapper {
+    border-radius: 10px !important;
+    padding: 12px 16px;
+    border: 1.5px solid #e8ecf1;
+    background: #f7f9fc;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 15px;
+}
+
+.ant-input-affix-wrapper:hover {
+    border-color: #91caff;
+    background: #ffffff;
+}
+
+.ant-input-affix-wrapper-focused,
+.ant-input-affix-wrapper:focus-within {
+    border-color: #1890ff !important;
+    background: #ffffff !important;
+    box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.08) !important;
+}
+
+/* Ensure input inside doesn't override */
+.ant-input {
+    border-radius: 0;
+    background: transparent;
+    font-size: 15px;
+}
+
+.ant-btn-primary {
+    border-radius: 10px;
+    background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+    border: none;
+    height: 48px;
+    font-size: 16px;
+    font-weight: 600;
+    box-shadow: 0 4px 14px rgba(24, 144, 255, 0.25);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    letter-spacing: 0.5px;
+}
+
+.ant-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(24, 144, 255, 0.35);
+    background: linear-gradient(135deg, #40a9ff 0%, #1890ff 100%);
+}
+
+.auth-aux {
+    margin-top: 16px;
+    text-align: center;
+    color: #64748b;
+}
+
+/* gentle entrance animation */
+.fade-in-up {
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+@keyframes fadeUp {
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+a {
+    color: #1890ff;
+    font-weight: 500;
+}

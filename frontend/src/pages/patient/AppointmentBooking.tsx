@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import { 
-  Card, 
-  Form, 
-  Select, 
-  DatePicker, 
-  Button, 
-  Table, 
-  Tag, 
-  Space, 
+import { useSearchParams } from 'react-router-dom'
+import {
+  Card,
+  Form,
+  Select,
+  DatePicker,
+  Button,
+  Table,
+  Tag,
+  Space,
   message,
   Input,
   Descriptions,
@@ -17,9 +18,9 @@ import {
   Statistic
 } from 'antd'
 import { Modal } from 'antd'
-import { 
-  CalendarOutlined, 
-  UserOutlined, 
+import {
+  CalendarOutlined,
+  UserOutlined,
   PhoneOutlined,
   MedicineBoxOutlined,
   ClockCircleOutlined,
@@ -70,10 +71,12 @@ interface Appointment {
 export default function AppointmentBooking() {
   const [form] = Form.useForm()
   const { user } = useAuthStore()
+  const [searchParams] = useSearchParams()
   const [doctors, setDoctors] = useState<Doctor[]>([])
   const [schedules, setSchedules] = useState<Schedule[]>([])
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null)
   const [selectedDate, setSelectedDate] = useState<dayjs.Dayjs | null>(null)
+  const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null)
   // 简化为“上/下午”选择
   const [myAppointments, setMyAppointments] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
@@ -137,7 +140,7 @@ export default function AppointmentBooking() {
     setSelectedDate(date)
     setSchedules([])
     form.setFieldsValue({ appointmentTime: null })
-    
+
     if (date && selectedDoctor) {
       fetchSchedules(selectedDoctor.id, date)
     }
@@ -194,6 +197,18 @@ export default function AppointmentBooking() {
     fetchDoctors()
     fetchMyAppointments()
   }, [])
+
+  useEffect(() => {
+    const dept = searchParams.get('department')
+    if (dept) {
+      setSelectedDepartment(dept)
+    }
+  }, [searchParams])
+
+  const uniqueDepartments = Array.from(new Set(doctors.map(d => d.department).filter(Boolean))) as string[]
+  const filteredDoctors = selectedDepartment
+    ? doctors.filter(d => d.department === selectedDepartment)
+    : doctors
 
   const doctorColumns = [
     {
@@ -277,8 +292,8 @@ export default function AppointmentBooking() {
       render: (_: any, record: any) => (
         <Space>
           {record.status === 'scheduled' || record.status === 'confirmed' ? (
-            <Button 
-              type="link" 
+            <Button
+              type="link"
               danger
               onClick={() => handleCancelAppointment(record.id)}
             >
@@ -308,6 +323,19 @@ export default function AppointmentBooking() {
               onFinish={handleSubmit}
               initialValues={{ role: 'patient' }}
             >
+              <Form.Item label="筛选科室">
+                <Select
+                  placeholder="全部科室"
+                  allowClear
+                  value={selectedDepartment}
+                  onChange={setSelectedDepartment}
+                >
+                  {uniqueDepartments.map(dept => (
+                    <Option key={dept} value={dept}>{dept}</Option>
+                  ))}
+                </Select>
+              </Form.Item>
+
               <Form.Item
                 label="选择医生"
                 name="doctorId"
@@ -318,17 +346,17 @@ export default function AppointmentBooking() {
                   onChange={handleDoctorChange}
                   loading={loading}
                 >
-                  {doctors.map(doctor => (
-                  <Option key={doctor.id} value={doctor.id}>
-                    <Space>
-                      <span>{doctor.name || '未命名医生'}</span>
-                      <span style={{ color: '#666' }}>
+                  {filteredDoctors.map(doctor => (
+                    <Option key={doctor.id} value={doctor.id}>
+                      <Space>
+                        <span>{doctor.name || '未命名医生'}</span>
+                        <span style={{ color: '#666' }}>
                           ({doctor.department || '未知科室'} · {doctor.title || '未知职称'})
-                      </span>
-                    </Space>
-                  </Option>
-                ))}
-              </Select>
+                        </span>
+                      </Space>
+                    </Option>
+                  ))}
+                </Select>
               </Form.Item>
 
               {selectedDoctor && (
@@ -386,16 +414,16 @@ export default function AppointmentBooking() {
                 label="备注"
                 name="notes"
               >
-                <TextArea 
-                  rows={3} 
+                <TextArea
+                  rows={3}
                   placeholder="请输入病情描述或其他备注信息（可选）"
                 />
               </Form.Item>
 
               <Form.Item>
-                <Button 
-                  type="primary" 
-                  htmlType="submit" 
+                <Button
+                  type="primary"
+                  htmlType="submit"
                   loading={submitLoading}
                   block
                   size="large"
@@ -413,7 +441,7 @@ export default function AppointmentBooking() {
           <Card title="医生列表" style={{ height: '100%' }}>
             <Table
               columns={doctorColumns}
-              dataSource={doctors}
+              dataSource={filteredDoctors}
               loading={loading}
               rowKey="id"
               pagination={false}
@@ -445,7 +473,7 @@ export default function AppointmentBooking() {
         </Col>
       </Row>
 
-      
+
     </div>
   )
 }

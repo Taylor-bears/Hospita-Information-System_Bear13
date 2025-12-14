@@ -1,9 +1,9 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
 import { Layout, Menu, Button, Avatar, Dropdown, Space } from 'antd'
-import { 
-  UserOutlined, 
-  CalendarOutlined, 
+import {
+  UserOutlined,
+  CalendarOutlined,
   MedicineBoxOutlined,
   DashboardOutlined,
   LogoutOutlined,
@@ -71,10 +71,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
             onClick: () => navigate('/patient/ai-consult')
           },
           {
-            key: '/patient/orders',
+            key: '/patient/prescriptions',
             icon: <MedicineBoxOutlined />,
             label: '我的药单',
-            onClick: () => navigate('/patient/orders')
+            onClick: () => navigate('/patient/prescriptions')
           },
           {
             key: '/patient/profile',
@@ -124,6 +124,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
             label: '用户审核',
             onClick: () => navigate('/admin/users')
           },
+          {
+            key: '/admin/all-users',
+            icon: <TeamOutlined />,
+            label: '用户管理',
+            onClick: () => navigate('/admin/all-users')
+          },
           // 移除不存在的“排班管理/账号管理”菜单项
         ]
       case 'pharmacist':
@@ -139,6 +145,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
             icon: <DatabaseOutlined />,
             label: '药品库存',
             onClick: () => navigate('/pharmacy/inventory')
+          },
+          {
+            key: '/pharmacy/prescriptions',
+            icon: <FileTextOutlined />,
+            label: '处方配药',
+            onClick: () => navigate('/pharmacy/prescriptions')
           },
           {
             key: '/pharmacy/prices',
@@ -191,17 +203,17 @@ export default function AppLayout({ children }: AppLayoutProps) {
           borderRight: '1px solid #f0f0f0'
         }}
       >
-        <div style={{ 
-          height: '64px', 
-          display: 'flex', 
-          alignItems: 'center', 
+        <div style={{
+          height: '64px',
+          display: 'flex',
+          alignItems: 'center',
           justifyContent: 'center',
           borderBottom: '1px solid #f0f0f0',
           background: '#1890ff'
         }}>
-          <h1 style={{ 
-            color: 'white', 
-            margin: 0, 
+          <h1 style={{
+            color: 'white',
+            margin: 0,
             fontSize: '18px',
             fontWeight: 'bold'
           }}>
@@ -215,7 +227,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           style={{ borderRight: 0 }}
         />
       </Sider>
-      
+
       <Layout style={{ marginLeft: 240 }}>
         <Header
           style={{
@@ -232,7 +244,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
               {getRoleDisplayName(user?.role)}工作台
             </h2>
           </div>
-          
+
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <Space>
               <Avatar icon={<UserOutlined />} />
@@ -251,7 +263,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
             </Space>
           </div>
         </Header>
-        
+
         <Content
           style={{
             margin: '24px',
