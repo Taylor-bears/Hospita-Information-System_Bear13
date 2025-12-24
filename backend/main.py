@@ -31,7 +31,7 @@ from api.ai_consult import router as api_ai_consult_router
 from api.profile import router as api_profile_router
 from api.orders import router as api_orders_router
 from api.stats import router as api_stats_router
-
+from api.reviews import router as reviews_router
 models.Base.metadata.create_all(bind=engine)
 
 # 启动时尝试加载初始数据
@@ -64,6 +64,7 @@ app.include_router(api_ai_consult_router)
 app.include_router(api_profile_router)
 app.include_router(api_orders_router)
 app.include_router(api_stats_router)
+app.include_router(reviews_router)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

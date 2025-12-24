@@ -195,3 +195,15 @@ class PrescriptionItem(Base):
     price_at_time = Column(Integer, nullable=False)  # 开药时的单价
     usage_instruction = Column(String(255), nullable=True) # 用法用量
 
+from sqlalchemy import Column, Integer, Text, DateTime, ForeignKey, UniqueConstraint, func
+from datetime import datetime
+class DoctorReview(Base):
+    __tablename__ = "doctor_reviews"
+
+    id = Column(Integer, primary_key=True, index=True)
+    appointment_id = Column(Integer, ForeignKey("appointments.id"), nullable=False, unique=True)
+    patient_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    doctor_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    rating = Column(Integer, nullable=False)  # 1~5
+    comment = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)

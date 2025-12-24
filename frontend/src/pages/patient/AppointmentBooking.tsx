@@ -18,6 +18,7 @@ import {
   Statistic
 } from 'antd'
 import { Modal } from 'antd'
+import { Rate } from "antd";
 import {
   CalendarOutlined,
   UserOutlined,
@@ -46,8 +47,24 @@ interface Doctor {
   hospital?: string
   is_approved?: boolean
   user_id: number
+  avg_rating?: number
+}
+interface ReviewPayload {
+  appointment_id: number
+  doctor_id: number
+  rating: number
+  comment?: string
 }
 
+async function createReview(data: ReviewPayload) {
+  // 调用后端 POST /api/reviews
+  return api.post('/api/reviews', data)
+}
+
+async function getDoctorRating(doctorId: number) {
+  // 调用后端 GET /api/reviews/doctor/{id}/rating
+  return api.get(`/api/reviews/doctor/${doctorId}/rating`)
+}
 interface Schedule {
   id: number
   doctor_id: number
@@ -170,6 +187,48 @@ export default function AppointmentBooking() {
     }
   }
 
+
+  // 在组件内部 state：
+  const [reviewModalVisible, setReviewModalVisible] = useState(false)
+  const [reviewTarget, setReviewTarget] = useState<any | null>(null)
+  const [reviewRating, setReviewRating] = useState<number>(0)
+  const [reviewComment, setReviewComment] = useState<string>('')
+
+  // 打开评价弹窗
+  const openReviewModal = (record: any) => {
+    setReviewTarget(record)
+    setReviewRating(0)
+    setReviewComment('')
+    setReviewModalVisible(true)
+  }
+
+  // 提交评价
+  const handleSubmitReview = async () => {
+    if (!reviewTarget) return
+    if (!reviewRating) {
+      message.warning('请先选择评分')
+      return
+    }
+    try {
+      await createReview({
+        appointment_id: Number(reviewTarget.id),
+        doctor_id: Number(reviewTarget.doctor_id),
+        rating: reviewRating,
+        comment: reviewComment || undefined
+      })
+      message.success('评价已提交')
+      setReviewModalVisible(false)
+      fetchMyAppointments()
+      // 可选：刷新医生列表评分
+      fetchDoctors()
+    } catch (e) {
+      message.error((e as Error).message)
+
+    }
+  }
+
+
+
   // 取消预约
   const handleCancelAppointment = async (appointmentId: string) => {
     Modal.confirm({
@@ -211,22 +270,30 @@ export default function AppointmentBooking() {
     : doctors
 
   const doctorColumns = [
-    {
-      title: '医生信息',
-      dataIndex: 'name',
-      key: 'name',
-      render: (text: string, record: Doctor) => (
-        <Space>
-          <Avatar icon={<UserOutlined />} />
-          <div>
-            <div style={{ fontWeight: 'bold' }}>{record.name}</div>
-            <div style={{ color: '#666', fontSize: '12px' }}>
-              {record.department} · {record.title}
-            </div>
+  {
+    title: '医生信息',
+    dataIndex: 'name',
+    key: 'name',
+    render: (text: string, record: Doctor) => (
+      <Space>
+        <Avatar icon={<UserOutlined />} />
+        <div>
+          <div style={{ fontWeight: 'bold' }}>
+            {record.name}
+            {/* 右侧评分展示 */}
+            <span style={{ marginLeft: 8, fontSize: 12, color: '#faad14' }}>
+              {record.avg_rating !== undefined
+                ? `⭐ ${record.avg_rating.toFixed(1)}`
+                : '暂无评分'}
+            </span>
           </div>
-        </Space>
-      )
-    },
+          <div style={{ color: '#666', fontSize: '12px' }}>
+            {record.department} · {record.title}
+          </div>
+        </div>
+      </Space>
+    )
+  },
     {
       title: '科室',
       dataIndex: 'department',
@@ -291,7 +358,7 @@ export default function AppointmentBooking() {
       key: 'action',
       render: (_: any, record: any) => (
         <Space>
-          {record.status === 'scheduled' || record.status === 'confirmed' ? (
+          {(record.status === 'scheduled' || record.status === 'confirmed') && (
             <Button
               type="link"
               danger
@@ -299,10 +366,15 @@ export default function AppointmentBooking() {
             >
               取消
             </Button>
-          ) : null}
+          )}
+          {record.status === 'completed' && (
+            <Button type="link" onClick={() => openReviewModal(record)}>
+              评价
+            </Button>
+          )}
         </Space>
       )
-    }
+      }
   ]
 
   const disabledDate = (current: dayjs.Dayjs) => {
@@ -473,7 +545,30 @@ export default function AppointmentBooking() {
         </Col>
       </Row>
 
+      <Modal
+        open={reviewModalVisible}
+        title="医生评价"
+        onCancel={() => setReviewModalVisible(false)}
+        onOk={handleSubmitReview}
+        okText="提交评价"
+      >
+        <div style={{ marginBottom: 16 }}>
+          <span style={{ marginRight: 8 }}>评分：</span>
+          <Rate
+            value={reviewRating}
+            onChange={setReviewRating}
+          />
+        </div>
+        <TextArea
+          rows={4}
+          placeholder="请输入评价内容（可选）"
+          value={reviewComment}
+          onChange={e => setReviewComment(e.target.value)}
+        />
+      </Modal>
 
     </div>
   )
 }
+
+
