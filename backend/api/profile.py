@@ -26,7 +26,12 @@ def get_me(user_id: int, db: Session = Depends(get_db)):
         p = db.query(models.DoctorProfile).filter(models.DoctorProfile.user_id == user_id).first()
         return {"role": "doctor", "name": getattr(p, "name", None), "department": getattr(p, "department", None), "title": getattr(p, "title", None)}
     elif u.role == models.UserRole.pharmacist:
-        return {"role": "pharmacist"}
+        p = db.query(models.PharmacistProfile).filter(models.PharmacistProfile.user_id == user_id).first()
+        return {
+            "role": "pharmacist",
+            "name": getattr(p, "name", None),
+            "department": getattr(p, "department", None),
+        }
     else:
         return {"role": "admin"}
 
@@ -48,6 +53,14 @@ def update_me(user_id: int, body: ProfileUpdate, db: Session = Depends(get_db)):
         p = db.query(models.DoctorProfile).filter(models.DoctorProfile.user_id == user_id).first()
         if not p:
             p = models.DoctorProfile(user_id=user_id)
+            db.add(p)
+        p.name = body.name
+        db.commit()
+        return {"message": "ok"}
+    elif u.role == models.UserRole.pharmacist:
+        p = db.query(models.PharmacistProfile).filter(models.PharmacistProfile.user_id == user_id).first()
+        if not p:
+            p = models.PharmacistProfile(user_id=user_id)
             db.add(p)
         p.name = body.name
         db.commit()
@@ -100,4 +113,3 @@ def pay_prescription(prescription_id: int, user_id: int, db: Session = Depends(g
     db.commit()
     return {"message": "支付成功"}
     return {"message": "支付成功", "prescription_id": p.id}
-

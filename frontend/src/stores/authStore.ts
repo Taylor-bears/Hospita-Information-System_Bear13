@@ -125,7 +125,8 @@ export const useAuthStore = create<AuthState>()(
           }
           set({ loading: false })
         } catch (error: any) {
-          set({ loading: false })
+          set({ loading: false, error: error?.message || '注册失败' })
+          throw error
         }
       },
 

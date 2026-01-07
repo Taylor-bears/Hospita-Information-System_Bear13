@@ -174,7 +174,20 @@ def review_items(
     items = q.order_by(models.User.created_at.desc()).offset((page - 1) * pageSize).limit(pageSize).all()
     result = []
     for u in items:
-        profile = db.query(models.DoctorProfile).filter(models.DoctorProfile.user_id == u.id).first()
+        profile = None
+        payload = {}
+        if u.role == models.UserRole.doctor:
+            profile = db.query(models.DoctorProfile).filter(models.DoctorProfile.user_id == u.id).first()
+            payload = {
+                "department": getattr(profile, "department", None),
+                "license_number": getattr(profile, "license_number", None),
+            }
+        elif u.role == models.UserRole.pharmacist:
+            profile = db.query(models.PharmacistProfile).filter(models.PharmacistProfile.user_id == u.id).first()
+            payload = {
+                "department": getattr(profile, "department", None),
+                "license_number": getattr(profile, "license_number", None),
+            }
         mapped_status = "approved" if u.status == models.UserStatus.active else "pending"
         result.append({
             "id": u.id,
@@ -184,10 +197,7 @@ def review_items(
             "status": mapped_status,
             "submittedAt": str(getattr(u, "created_at", "")),
             "updatedAt": str(getattr(u, "created_at", "")),
-            "payload": {
-                "department": getattr(profile, "department", None),
-                "license_number": getattr(profile, "license_number", None),
-            }
+            "payload": payload,
         })
     return {"items": result, "total": total, "page": page, "pageSize": pageSize}
 
@@ -218,6 +228,10 @@ def review_reject(user_id: int, body: ReviewRejectBody, db: Session = Depends(ge
         prof = db.query(models.DoctorProfile).filter(models.DoctorProfile.user_id == user_id).first()
         if prof:
             db.delete(prof)
+    if u.role == models.UserRole.pharmacist:
+        prof = db.query(models.PharmacistProfile).filter(models.PharmacistProfile.user_id == user_id).first()
+        if prof:
+            db.delete(prof)
     db.delete(u)
     db.commit()
     db.add(models.AdminAudit(action="reject_user", target_type="user", target_id=user_id, info=body.reason or ""))
@@ -246,6 +260,10 @@ def review_batch(body: BatchBody, db: Session = Depends(get_db)):
             # reject: 删除档案和用户
             if u.role == models.UserRole.doctor:
                 prof = db.query(models.DoctorProfile).filter(models.DoctorProfile.user_id == uid).first()
+                if prof:
+                    db.delete(prof)
+            elif u.role == models.UserRole.pharmacist:
+                prof = db.query(models.PharmacistProfile).filter(models.PharmacistProfile.user_id == uid).first()
                 if prof:
                     db.delete(prof)
             db.delete(u)
@@ -294,6 +312,10 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
         for s in schedules:
             db.query(models.Appointment).filter(models.Appointment.schedule_id == s.id).delete()
             db.delete(s)
+    elif u.role == models.UserRole.pharmacist:
+        p = db.query(models.PharmacistProfile).filter(models.PharmacistProfile.user_id == user_id).first()
+        if p:
+            db.delete(p)
     # 删除用户本身
     db.delete(u)
     db.commit()
@@ -508,4 +530,3 @@ def get_user_details(user_id: int, db: Session = Depends(get_db)):
         "base": base_info,
         "details": details
     }
-

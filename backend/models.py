@@ -124,6 +124,18 @@ class DoctorProfile(Base):
     email = Column(String(100))
     created_at = Column(TIMESTAMP, server_default=func.now())
 
+class PharmacistProfile(Base):
+    __tablename__ = "pharmacist_profiles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
+    name = Column(String(50))
+    department = Column(String(50))
+    title = Column(String(50))
+    license_number = Column(String(50))
+    email = Column(String(100))
+    created_at = Column(TIMESTAMP, server_default=func.now())
+
 # ==================== 管理员操作审计 ====================
 
 class AdminAudit(Base):
@@ -194,4 +206,3 @@ class PrescriptionItem(Base):
     quantity = Column(Integer, nullable=False, default=1)
     price_at_time = Column(Integer, nullable=False)  # 开药时的单价
     usage_instruction = Column(String(255), nullable=True) # 用法用量
-

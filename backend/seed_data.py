@@ -64,27 +64,36 @@ def seed_from_json(db: Session, json_path: str = "initial_data.json"):
                 db.flush()
                 print(f"  已创建用户: {phone} ({user_data['role']})")
 
-                if "profile" in user_data:
-                    profile_data = user_data["profile"]
-                    if role_enum == models.UserRole.doctor:
-                        profile = models.DoctorProfile(
-                            user_id=new_user.id,
-                            name=profile_data.get("name"),
-                            department=profile_data.get("department"),
-                            title=profile_data.get("title"),
-                            license_number=profile_data.get("license_number"),
-                            hospital=profile_data.get("hospital"),
-                            email=profile_data.get("email")
-                        )
-                        db.add(profile)
-                    elif role_enum == models.UserRole.user:
-                        profile = models.PatientProfile(
-                            user_id=new_user.id,
-                            name=profile_data.get("name"),
-                            id_card=profile_data.get("id_card"),
-                            email=profile_data.get("email")
-                        )
-                        db.add(profile)
+                profile_data = user_data.get("profile") or {}
+                if role_enum == models.UserRole.doctor:
+                    profile = models.DoctorProfile(
+                        user_id=new_user.id,
+                        name=profile_data.get("name"),
+                        department=profile_data.get("department"),
+                        title=profile_data.get("title"),
+                        license_number=profile_data.get("license_number"),
+                        hospital=profile_data.get("hospital"),
+                        email=profile_data.get("email")
+                    )
+                    db.add(profile)
+                elif role_enum == models.UserRole.user:
+                    profile = models.PatientProfile(
+                        user_id=new_user.id,
+                        name=profile_data.get("name"),
+                        id_card=profile_data.get("id_card"),
+                        email=profile_data.get("email")
+                    )
+                    db.add(profile)
+                elif role_enum == models.UserRole.pharmacist:
+                    profile = models.PharmacistProfile(
+                        user_id=new_user.id,
+                        name=profile_data.get("name") or user_data.get("description") or phone,
+                        department=profile_data.get("department"),
+                        title=profile_data.get("title"),
+                        license_number=profile_data.get("license_number"),
+                        email=profile_data.get("email"),
+                    )
+                    db.add(profile)
             else:
                 print(f"  用户已存在: {phone}，跳过。")
 

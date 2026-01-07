@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     phone VARCHAR(20) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    role ENUM('admin', 'doctor', 'user') NOT NULL,
+    role ENUM('admin', 'doctor', 'pharmacist', 'user') NOT NULL,
     status ENUM('active', 'pending') DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -25,6 +25,19 @@ CREATE TABLE IF NOT EXISTS doctor_schedules (
     status ENUM('open','closed') NOT NULL DEFAULT 'open',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_schedule_doctor FOREIGN KEY (doctor_id) REFERENCES users(id)
+);
+
+-- create pharmacist profile table
+CREATE TABLE IF NOT EXISTS pharmacist_profiles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL UNIQUE,
+    name VARCHAR(50),
+    department VARCHAR(50),
+    title VARCHAR(50),
+    license_number VARCHAR(50),
+    email VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_pharmacist_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 -- 创建预约表

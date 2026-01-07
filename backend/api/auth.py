@@ -123,16 +123,26 @@ def register_pharmacist(body: PharmacistRegister, db: Session = Depends(get_db))
     phone = _validate_phone_or_raise(body.phone)
     exists = db.query(models.User).filter(models.User.phone == phone).first()
     if exists:
+        # 已注册的药师账号直接返回当前状态，避免重复注册报错
+        if exists.role == models.UserRole.pharmacist:
+            return {"id": exists.id, "phone": exists.phone, "role": exists.role, "status": exists.status}
         raise HTTPException(status_code=400, detail="该手机号已被注册")
     user = models.User(
         phone=phone,
         password=_hash(body.password),
         role=models.UserRole.pharmacist,
-        status=models.UserStatus.active,
+        status=models.UserStatus.pending,
     )
     db.add(user)
     db.commit()
     db.refresh(user)
+    profile = models.PharmacistProfile(
+        user_id=user.id,
+        name=body.name,
+        department=body.department,
+    )
+    db.add(profile)
+    db.commit()
     return {"id": user.id, "phone": user.phone, "role": user.role, "status": user.status}
 
 
