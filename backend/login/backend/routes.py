@@ -13,6 +13,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'backend'))
 
 from database import get_db
 import models, schemas
+from core.security import create_access_token
 
 router = APIRouter(prefix="", tags=["登录注册"])
 
@@ -67,8 +68,11 @@ def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
     if db_user.status == models.UserStatus.pending:
         raise HTTPException(status_code=403, detail="账号审核中，请等待管理员审核")
 
+    # 生成真实 JWT token
+    role_value = db_user.role.value if hasattr(db_user.role, 'value') else str(db_user.role)
+    token = create_access_token(user_id=db_user.id, role=role_value)
     return {
-        "access_token": "fake-jwt-token", 
+        "access_token": token, 
         "token_type": "bearer",
         "role": db_user.role,
         "status": db_user.status

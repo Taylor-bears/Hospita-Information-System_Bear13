@@ -3,8 +3,14 @@ from sqlalchemy.orm import Session
 from typing import List
 from backend.database import get_db
 from backend import models, schemas
+from backend.core.permissions import require_doctor
+from backend.core.security import TokenPayload
 
+# 医生列表公开，其他操作需要医生权限
 router = APIRouter(prefix="/api/doctor", tags=["Doctor"])
+
+# 需要医生权限的子路由
+protected_router = APIRouter(dependencies=[Depends(require_doctor)])
 
 # 医生列表接口
 @router.get("/")
@@ -27,7 +33,7 @@ def list_doctors(db: Session = Depends(get_db)):
 
 # ==================== 病历管理 ====================
 
-@router.get("/records", response_model=List[schemas.MedicalRecordResponse])
+@router.get("/records", response_model=List[schemas.MedicalRecordResponse], dependencies=[Depends(require_doctor)])
 def list_medical_records(
     patient_id: int = None, 
     doctor_id: int = None, 
@@ -43,14 +49,14 @@ def list_medical_records(
     records = q.order_by(models.MedicalRecord.created_at.desc()).offset(skip).limit(limit).all()
     return records
 
-@router.get("/records/{record_id}", response_model=schemas.MedicalRecordResponse)
+@router.get("/records/{record_id}", response_model=schemas.MedicalRecordResponse, dependencies=[Depends(require_doctor)])
 def get_medical_record(record_id: int, db: Session = Depends(get_db)):
     record = db.query(models.MedicalRecord).filter(models.MedicalRecord.id == record_id).first()
     if not record:
         raise HTTPException(status_code=404, detail="病例不存在")
     return record
 
-@router.post("/records", response_model=schemas.MedicalRecordResponse)
+@router.post("/records", response_model=schemas.MedicalRecordResponse, dependencies=[Depends(require_doctor)])
 def create_medical_record(record: schemas.MedicalRecordCreate, db: Session = Depends(get_db)):
     # 验证医生和患者是否存在
     doctor = db.query(models.User).filter(models.User.id == record.doctor_id, models.User.role == models.UserRole.doctor).first()
@@ -66,7 +72,7 @@ def create_medical_record(record: schemas.MedicalRecordCreate, db: Session = Dep
     db.refresh(db_record)
     return db_record
 
-@router.put("/records/{record_id}", response_model=schemas.MedicalRecordResponse)
+@router.put("/records/{record_id}", response_model=schemas.MedicalRecordResponse, dependencies=[Depends(require_doctor)])
 def update_medical_record(record_id: int, record: schemas.MedicalRecordUpdate, db: Session = Depends(get_db)):
     db_record = db.query(models.MedicalRecord).filter(models.MedicalRecord.id == record_id).first()
     if not db_record:
@@ -79,7 +85,7 @@ def update_medical_record(record_id: int, record: schemas.MedicalRecordUpdate, d
 
 # ==================== 处方管理 ====================
 
-@router.post("/prescriptions", response_model=schemas.PrescriptionResponse)
+@router.post("/prescriptions", response_model=schemas.PrescriptionResponse, dependencies=[Depends(require_doctor)])
 def create_prescription(prescription: schemas.PrescriptionCreate, db: Session = Depends(get_db)):
     # 1. 检查病历是否存在
     record = db.query(models.MedicalRecord).filter(models.MedicalRecord.id == prescription.medical_record_id).first()
@@ -131,7 +137,7 @@ def create_prescription(prescription: schemas.PrescriptionCreate, db: Session = 
     # 重新查询以包含 items
     return new_prescription
 
-@router.get("/prescriptions", response_model=List[schemas.PrescriptionResponse])
+@router.get("/prescriptions", response_model=List[schemas.PrescriptionResponse], dependencies=[Depends(require_doctor)])
 def list_doctor_prescriptions(doctor_id: int, db: Session = Depends(get_db)):
     prescriptions = db.query(models.Prescription).filter(models.Prescription.doctor_id == doctor_id).order_by(models.Prescription.created_at.desc()).all()
     
@@ -173,7 +179,7 @@ def list_doctor_prescriptions(doctor_id: int, db: Session = Depends(get_db)):
         
     return result
 
-@router.get("/prescriptions/{prescription_id}", response_model=schemas.PrescriptionResponse)
+@router.get("/prescriptions/{prescription_id}", response_model=schemas.PrescriptionResponse, dependencies=[Depends(require_doctor)])
 def get_prescription(prescription_id: int, db: Session = Depends(get_db)):
     p = db.query(models.Prescription).filter(models.Prescription.id == prescription_id).first()
     if not p:

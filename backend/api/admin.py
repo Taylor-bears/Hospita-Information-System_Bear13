@@ -7,8 +7,10 @@ from passlib.context import CryptContext
 
 from backend.database import get_db
 from backend import models, schemas
+from backend.core.permissions import require_admin
 
-router = APIRouter(prefix="/api/admin", tags=["Admin"])
+# 所有 admin 接口都需要管理员权限
+router = APIRouter(prefix="/api/admin", tags=["Admin"], dependencies=[Depends(require_admin)])
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

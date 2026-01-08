@@ -11,6 +11,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'backend'))
 
 from database import get_db
 import models, schemas
+from core.security import TokenPayload, get_current_user
+from core.permissions import require_doctor
 
 router = APIRouter(prefix="", tags=["预约管理"])
 
@@ -166,8 +168,12 @@ def create_appointment(payload: schemas.AppointmentCreate, db: Session = Depends
 
 
 @router.get("/appointments/my")
-def my_appointments(patient_id: int, db: Session = Depends(get_db)):
+def my_appointments(
+    current_user: TokenPayload = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """患者查看自己的预约（含医生和时间信息）"""
+    patient_id = current_user.user_id
     rows = (
         db.query(models.Appointment, models.DoctorSchedule, models.User, models.DoctorProfile)
         .join(models.DoctorSchedule, models.Appointment.schedule_id == models.DoctorSchedule.id)
@@ -196,8 +202,13 @@ def my_appointments(patient_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/appointments/{appointment_id}/cancel")
-def cancel_appointment(appointment_id: int, patient_id: int, db: Session = Depends(get_db)):
+def cancel_appointment(
+    appointment_id: int,
+    current_user: TokenPayload = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """患者取消自己的预约"""
+    patient_id = current_user.user_id
     appt = db.query(models.Appointment).filter(models.Appointment.id == appointment_id).first()
     if not appt or appt.patient_id != patient_id:
         raise HTTPException(status_code=404, detail="预约不存在或无权限")
@@ -223,7 +234,7 @@ def cancel_appointment(appointment_id: int, patient_id: int, db: Session = Depen
     return {"message": "已取消"}
 
 
-@router.post("/appointments/{appointment_id}/status")
+@router.post("/appointments/{appointment_id}/status", dependencies=[Depends(require_doctor)])
 def update_appointment_status(
     appointment_id: int,
     status: str = Body(..., embed=True, description="新状态"),
@@ -263,12 +274,16 @@ def update_appointment_status(
 
 # ========== 医生端 ==========
 
-@router.get("/doctor/schedules/my", response_model=List[schemas.ScheduleResponse])
-def doctor_my_schedules(doctor_id: int, db: Session = Depends(get_db)):
+@router.get("/doctor/schedules/my", response_model=List[schemas.ScheduleResponse], dependencies=[Depends(require_doctor)])
+def doctor_my_schedules(
+    current_user: TokenPayload = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    doctor_id = current_user.user_id
     return db.query(models.DoctorSchedule).filter(models.DoctorSchedule.doctor_id == doctor_id).all()
 
 
-@router.post("/doctor/schedules", response_model=schemas.ScheduleResponse)
+@router.post("/doctor/schedules", response_model=schemas.ScheduleResponse, dependencies=[Depends(require_doctor)])
 def create_schedule(payload: schemas.ScheduleCreate, db: Session = Depends(get_db)):
     doctor = db.query(models.User).filter(models.User.id == payload.doctor_id).first()
     if not doctor or doctor.role != models.UserRole.doctor or doctor.status != models.UserStatus.active:
@@ -337,8 +352,13 @@ def create_schedule(payload: schemas.ScheduleCreate, db: Session = Depends(get_d
         return schedule
 
 
-@router.delete("/doctor/schedules/{schedule_id}")
-def delete_schedule(schedule_id: int, doctor_id: int, db: Session = Depends(get_db)):
+@router.delete("/doctor/schedules/{schedule_id}", dependencies=[Depends(require_doctor)])
+def delete_schedule(
+    schedule_id: int,
+    current_user: TokenPayload = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    doctor_id = current_user.user_id
     schedule = db.query(models.DoctorSchedule).filter(models.DoctorSchedule.id == schedule_id).first()
     if not schedule or schedule.doctor_id != doctor_id:
         raise HTTPException(status_code=404, detail="排班不存在或无权限")
@@ -354,8 +374,12 @@ def delete_schedule(schedule_id: int, doctor_id: int, db: Session = Depends(get_
     return {"message": "已删除"}
 
 
-@router.get("/doctor/appointments/my", response_model=List[schemas.AppointmentResponse])
-def doctor_my_appointments(doctor_id: int, db: Session = Depends(get_db)):
+@router.get("/doctor/appointments/my", response_model=List[schemas.AppointmentResponse], dependencies=[Depends(require_doctor)])
+def doctor_my_appointments(
+    current_user: TokenPayload = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    doctor_id = current_user.user_id
     return db.query(models.Appointment).filter(models.Appointment.doctor_id == doctor_id).all()
 
 

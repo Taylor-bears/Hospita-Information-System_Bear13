@@ -3,8 +3,10 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from backend.database import get_db
 from backend import models, schemas
+from backend.core.permissions import require_pharmacist
 
-router = APIRouter(prefix="/api/pharmacy", tags=["Pharmacy"])
+# 所有药房接口需要药剂师权限
+router = APIRouter(prefix="/api/pharmacy", tags=["Pharmacy"], dependencies=[Depends(require_pharmacist)])
 
 @router.get("/prescriptions", response_model=List[schemas.PrescriptionResponse])
 def list_prescriptions(

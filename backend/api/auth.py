@@ -6,6 +6,7 @@ import re
 from backend.database import get_db
 from backend import models
 from passlib.context import CryptContext
+from backend.core.security import create_access_token
 
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
@@ -168,4 +169,7 @@ def login(body: LoginBody, db: Session = Depends(get_db)):
         raise HTTPException(status_code=403, detail="角色与账号不匹配，请选择正确身份")
     if u.status == models.UserStatus.pending:
         raise HTTPException(status_code=403, detail="账号审核中，请等待管理员审核")
-    return {"token": "fake-jwt-token", "user_id": u.id, "role": u.role}
+    # 生成真实 JWT token
+    role_value = u.role.value if hasattr(u.role, 'value') else str(u.role)
+    token = create_access_token(user_id=u.id, role=role_value)
+    return {"token": token, "user_id": u.id, "role": u.role}
